@@ -1,7 +1,14 @@
+using Microsoft.EntityFrameworkCore;
+using Recrutiment_Test.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+var provider = builder.Services.BuildServiceProvider();
+var config = provider.GetRequiredService<IConfiguration>();
+builder.Services.AddDbContext<RecruitmentDbContext>(item => item.UseSqlServer(config.GetConnectionString("dbooos")));
 
 var app = builder.Build();
 

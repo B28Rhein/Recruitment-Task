@@ -1,0 +1,69 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Employees";
+}
+@model IEnumerable<Recrutiment_Test.Models.Employee>
+<h2>Employees List</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Id)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FullName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Subdivision)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Position)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Status)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.PeoplePartner)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.OutOfOfficeBalance)
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FullName)
+                </td>
+                <td>
+                    @(((List<string>)ViewData["Subdivisions"])[@item.Subdivision])
+                </td>
+                <td>
+                    @(((List<string>)ViewData["Positions"])[@item.Position])
+                </td>
+                <td>
+                    @item.Status
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.PeoplePartner)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.OutOfOfficeBalance) days
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a asp-controller="Employees" asp-action="AddEmployee"><button class="btn-primary">Add new Employee</button></a>
+
+
+
+
+
