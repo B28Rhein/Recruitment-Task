@@ -17,11 +17,11 @@
     <input type="checkbox" name="Status" id="Active"/><br />
     
     <label class="form-label">Select Peoples Partner</label>
-    @Html.DropDownListFor(x => x.Id,
+    @Html.DropDownList("peoplesPartner",
             new SelectList(Model.EmployeeList, "Value", "Text"),
             "Select Peoples Partner",
-            new { @class = "form-control" })
+            new { @class = "form-control"})
     <label class="form-label">Out-of-Office Balance</label><br />
     <input id="oooBalance" name="oooBalance" type="number" min="0" /><br /><br />
-    <input type="submit" value="Add" style="padding:0.2%"/>
+    <input type="submit" value="Add" class="btn btn-primary" />
 </form>

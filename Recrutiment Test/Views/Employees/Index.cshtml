@@ -52,10 +52,13 @@
                     @item.Status
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.PeoplePartner)
+                    @(((List<Employee>)Model).Find(x => x.Id == item.PeoplePartner).FullName)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.OutOfOfficeBalance) days
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
                 </td>
             </tr>
         }
