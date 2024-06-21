@@ -36,13 +36,57 @@ namespace Recrutiment_Test.Controllers
             return View(await context.Employees.ToListAsync());
         }
         [HttpPost]
-        public async Task<IActionResult> Index(string fullName, string subdivision, string position, string Status, int peoplesPartner, int oooBalance)
+        public async Task<IActionResult> AddEmployee(string fullName, string subdivision, string position, string Status, int peoplesPartner, int oooBalance)
         {
-            ViewData["Positions"] = positions;
-            ViewData["Subdivisions"] = subdivisions;
-            bool Active = Status == "on" ? true : false;
-            Employee.AddNewEmployee(fullName, subdivision, position, Active, peoplesPartner, oooBalance, context);
-            return View(await context.Employees.ToListAsync());
+            Employee employee = new Employee()
+            {
+                FullName = fullName,
+                Subdivision = subdivisions.IndexOf(subdivision),
+                Position = positions.IndexOf(position),
+                Status = Status == "on" ? true : false,
+                PeoplePartner = peoplesPartner,
+                OutOfOfficeBalance = oooBalance
+            };
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    context.Add(employee);
+                    await context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (context.Employees.Find(employee.Id) == null)
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction("Index");
+            }
+
+            EmployeeModel employeeModel = new EmployeeModel();
+            employeeModel.EmployeeList = new List<SelectListItem>();
+
+            var data = context.Employees.ToList();
+            foreach (var item in data)
+            {
+                if (item.Position == 0)
+                {
+                    employeeModel.EmployeeList.Add(new SelectListItem
+                    {
+                        Text = item.FullName,
+                        Value = item.Id.ToString()
+                    });
+                }
+            }
+            ViewBag.Position = new SelectList(positions);
+            ViewBag.Subdivision = new SelectList(subdivisions);
+            ViewData["EmployeeModel"] = employeeModel;
+            return View();
         }
         public IActionResult AddEmployee()
         {
@@ -63,7 +107,8 @@ namespace Recrutiment_Test.Controllers
             }
             ViewBag.Position = new SelectList(positions);
             ViewBag.Subdivision = new SelectList(subdivisions);
-            return View(employeeModel);
+            ViewData["EmployeeModel"] = employeeModel;
+            return View();
         }
         public async Task<IActionResult> Edit(int? id)
         {
@@ -132,8 +177,7 @@ namespace Recrutiment_Test.Controllers
                 }
                 return RedirectToAction("Index");
             }
-            ViewBag.Position = new SelectList(positions);
-            ViewBag.Subdivision = new SelectList(subdivisions);
+
             EmployeeModel employeeModel = new EmployeeModel();
             employeeModel.EmployeeList = new List<SelectListItem>();
 
@@ -149,7 +193,63 @@ namespace Recrutiment_Test.Controllers
                     });
                 }
             }
-            return View(new object[] { employee, employeeModel });
+            ViewBag.Position = new SelectList(positions);
+            ViewBag.Subdivision = new SelectList(subdivisions);
+            ViewData["EmployeeModel"] = employeeModel;
+            return View(employee);
+        }
+        public async Task<IActionResult> Deactivate(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var Employee = await context.Employees.FindAsync(id);
+            if (Employee == null)
+            {
+                return NotFound();
+            }
+            return View(Employee);
+        }
+        [HttpPost]
+        public async Task<IActionResult> Deactivate(int ID, bool disactivate)
+        {
+            if (ID == null)
+            {
+                return NotFound();
+            }
+
+            var Employee = await context.Employees.FindAsync(ID);
+            if (Employee == null)
+            {
+                return NotFound();
+            }
+            if (disactivate)
+            {
+                Employee.Status = false;
+                if (ModelState.IsValid)
+                {
+                    try
+                    {
+                        context.Update(Employee);
+                        await context.SaveChangesAsync();
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        if (context.Employees.Find(Employee.Id) == null)
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                    return RedirectToAction("Index");
+                }
+            }
+            return RedirectToAction("Index");
         }
     }
 }

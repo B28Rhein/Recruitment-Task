@@ -60,13 +60,25 @@
                 <td>
                     <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
                 </td>
+                <td>
+                    @{
+                        if(item.Status == true)
+                        {
+                            Html.Raw("<a asp-action=\"Deactivate\" asp-route-id=\"@item.Id\">Deactivate</a>");
+                        }
+                        else
+                        {
+                            Html.Raw("<a asp-action=\"Deactivate\" asp-route-id=\"@item.Id\">Activate</a>");
+                        }
+                        Html.Raw($"<a href=\"Employees/Deactivate/{item.Id}\">Activate</a>");
+                    }                
+                    
+                </td>
             </tr>
         }
     </tbody>
 </table>
 <a asp-controller="Employees" asp-action="AddEmployee"><button class="btn-primary">Add new Employee</button></a>
-
-
 
 
 

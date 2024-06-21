@@ -29,19 +29,4 @@ public partial class Employee
     public virtual Employee PeoplePartnerNavigation { get; set; } = null!;
 
     public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
-
-    public static void AddNewEmployee(string fullName, string subdivision, string position, bool status, int peoplePartner, int Balance, RecruitmentDbContext context)
-    {
-        Console.WriteLine(fullName);
-        context.Employees.Add(new Employee()
-        {
-            FullName = fullName,
-            Subdivision = Controllers.EmployeesController.subdivisions.IndexOf(subdivision),
-            Position = Controllers.EmployeesController.positions.IndexOf(position),
-            Status = status,
-            PeoplePartner = peoplePartner,
-            OutOfOfficeBalance = Balance
-        });
-        context.SaveChanges();
-    }
 }

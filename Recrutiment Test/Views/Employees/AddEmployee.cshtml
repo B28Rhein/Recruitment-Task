@@ -4,11 +4,10 @@
 @{
     ViewData["Title"] = "Add Employee";
 }
-@model Recrutiment_Test.Models.EmployeeModel
 <h2>Add a new Employee</h2>
-<form id="AddEmployeeForm" asp-controller="Employees" asp-action="Index" method="post" style="padding:1%">
+<form id="AddEmployeeForm" asp-controller="Employees" asp-action="AddEmployee" method="post" style="padding:1%">
     <label class="form-label">FullName</label><br />
-    <input id="fullName" name="fullName" type="text" /><br />
+    <input id="fullName" name="fullName" type="text"/><br />
     <label>Subdivision</label>
     @Html.DropDownList("subdivision", ViewBag.Subdivision, "Select Subdivision", new { @class = "form-control" })
     <label class="form-label">Position</label>
@@ -18,10 +17,22 @@
     
     <label class="form-label">Select Peoples Partner</label>
     @Html.DropDownList("peoplesPartner",
-            new SelectList(Model.EmployeeList, "Value", "Text"),
+            new SelectList(((EmployeeModel)ViewData["EmployeeModel"]).EmployeeList, "Value", "Text"),
             "Select Peoples Partner",
             new { @class = "form-control"})
     <label class="form-label">Out-of-Office Balance</label><br />
     <input id="oooBalance" name="oooBalance" type="number" min="0" /><br /><br />
-    <input type="submit" value="Add" class="btn btn-primary" />
+    <div class="form-group">
+        <input type="submit" value="Add" class="btn btn-primary" />
+    </div>
 </form>
+
+<div>
+    <a asp-action="Index">Back</a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

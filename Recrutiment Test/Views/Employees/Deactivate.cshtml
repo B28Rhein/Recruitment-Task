@@ -1,0 +1,28 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = $"Deactivate {Model.Id} {Model.FullName}"; 
+}
+@model Employee
+<head>
+    <script>
+        function disactivation(disactivate) {
+            document.getElementById("disactivate").value = disactivate
+            document.getElementById("form1").submit();
+        }
+    </script>
+</head>
+<form asp-action="Deactivate" method="post" id="form1">
+    <div>
+        <input type="hidden" id="disactivate" name="disactivate" />
+        <input type="hidden" name="ID" id="ID" value="@Model.Id" />
+        <h1>Are you sure that you want to deactivate employee @Model.Id @Model.FullName</h1>
+        <br />
+        <div>
+            <input type="button" name="yes" value="YES" class="btn btn-primary" onclick="disactivation(true)" /><input type="button" name="no" value="NO" class="btn btn-primary" onclick="disactivation(false)" />
+        </div>
+    </div>
+    
+
+</form>
