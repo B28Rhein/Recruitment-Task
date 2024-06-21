@@ -90,9 +90,6 @@ public partial class RecruitmentDbContext : DbContext
             entity.Property(e => e.Comment).HasColumnType("text");
             entity.Property(e => e.EndDate).HasColumnName("End Date");
             entity.Property(e => e.StartDate).HasColumnName("Start Date");
-            entity.Property(e => e.Status)
-                .HasMaxLength(10)
-                .IsFixedLength();
 
             entity.HasOne(d => d.EmployeeNavigation).WithMany(p => p.LeaveRequests)
                 .HasForeignKey(d => d.Employee)

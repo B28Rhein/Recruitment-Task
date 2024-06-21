@@ -1,0 +1,38 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Add Employee";
+}
+@model bool
+<h2>Add a new Employee</h2>
+<form id="AddProjectForm" asp-controller="Projects" asp-action="AddProject" method="post" style="padding:1%">
+    <label class="form-label">Project Type</label><br />
+    @Html.DropDownList("projectType", ViewBag.ProjectTypes, "Select Project Type", new { @class = "form-control" })
+    <label class="form-label">StartDate</label><br /> 
+    <input type="date" name="startDate" id="startDate" /><br />
+    <label class="form-label">End Date</label><br />
+    <input type="date" name="endDate" id="endDate" /><br />
+    <label class="form-label">Project Manager</label>
+    @Html.DropDownList("projectManager",
+            new SelectList(((EmployeeModel)ViewData["ProjectManagers"]).EmployeeList, "Value", "Text"),
+            "Select Project Manager",
+            new { @class = "form-control"})
+    <label class="form-label">Comment</label>
+    <textarea class="form-control" rows="4" cols="10" name="comment" id="comment"></textarea>
+    <label class="form-label">Active</label>
+    <input type="checkbox" name="Status" id="Active" /><br />
+    <div class="form-group">
+        <input type="submit" value="Add" class="btn btn-primary" />
+    </div>
+</form>
+<div style="color:red; font-size:large; font-weight:bold">@(!Model ? "An Error as occured, employee was not added" : "")</div>
+<div>
+    <a asp-action="Index"><button class="btn-primary">Back</button></a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

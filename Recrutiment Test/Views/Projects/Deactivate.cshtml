@@ -2,31 +2,31 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
-    ViewData["Title"] = $"Deactivate {Model.Id} {Model.FullName}"; 
+    ViewData["Title"] = $"Deactivate {Model.Id}"; 
 }
-@model Employee
+@model Project
 <head>
     <script>
-        function disactivation(deactivation) {
-            document.getElementById("deactivation").value = deactivation
+        function deactivation(deactivate) {
+            document.getElementById("deactivate").value = deactivate
             document.getElementById("form1").submit();
         }
     </script>
 </head>
 <form asp-action="Deactivate" method="post" id="form1">
     <div>
-        <input type="hidden" id="deactivation" name="deactivation" />
+        <input type="hidden" id="deactivate" name="deactivate" />
         <input type="hidden" name="ID" id="ID" value="@Model.Id" />
-        <h3 class="text-center">Are you sure that you want to @(Model.Status ? "deactivate":"activate") employee @Model.Id @Model.FullName</h3>
+        <h3 class="text-center">Are you sure that you want to @(Model.Status ? "deactivate":"activate") project @Model.Id</h3>
         <br />
         <div>
             <div class="container">
                 <div class="row">
                     <div class="col text-center">
-                        <input type="button" name="yes" value="YES" class="btn btn-danger btn-lg" onclick="disactivation(true)" />
+                        <input type="button" name="yes" value="YES" class="btn btn-danger btn-lg" onclick="deactivation(true)" />
                     </div>
                     <div class="col text-center">
-                        <input type="button" name="no" value="NO" class="btn btn-primary btn-lg" onclick="disactivation(false)" />
+                        <input type="button" name="no" value="NO" class="btn btn-primary btn-lg" onclick="deactivation(false)" />
                     </div>
                 </div>
                 

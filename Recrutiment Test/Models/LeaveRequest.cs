@@ -7,7 +7,7 @@ namespace Recrutiment_Test.Models;
 public partial class LeaveRequest
 {
     public int Id { get; set; }
-    [Display(Name ="Employee ID")]
+    [Display(Name = "Employee ID")]
     public int Employee { get; set; }
     [Display(Name = "Absence Reason")]
     public int AbsenceReason { get; set; }
@@ -18,7 +18,7 @@ public partial class LeaveRequest
 
     public string? Comment { get; set; }
 
-    public string Status { get; set; } = null!;
+    public int Status { get; set; }
 
     public virtual ICollection<ApprovalRequest> ApprovalRequests { get; set; } = new List<ApprovalRequest>();
 

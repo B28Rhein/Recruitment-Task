@@ -12,14 +12,14 @@
             <input type="hidden" asp-for="Id" />
             <label class="form-label" >FullName</label><br />
             <input id="fullName" name="fullName" type="text" asp-for="FullName" /><br />
-            <label>Subdivision</label>
+            <label class="form-label">Subdivision</label>
             @Html.DropDownList("subdivision", ViewBag.Subdivision, "Select Subdivision", new { @class = "form-control" })
             <label class="form-label">Position</label>
             @Html.DropDownList("position", ViewBag.positions, "Select position", new { @class = "form-control" })
             <label class="form-label">Active</label>
             <input type="checkbox" name="Status" id="Active" asp-for="Status" /><br />
 
-            <label class="form-label">Select Peoples Partner</label>
+            <label class="form-label">Peoples Partner</label>
             @Html.DropDownList("peoplesPartner",
                      new SelectList(((EmployeeModel)ViewData["EmployeeModel"]).EmployeeList, "Value", "Text"),
                      "Select Peoples Partner",

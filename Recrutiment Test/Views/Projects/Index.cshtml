@@ -1,0 +1,102 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Employees";
+    string SortOrder = (string)ViewData["SortOrder"];
+}
+@model IEnumerable<Recrutiment_Test.Models.Project>
+
+<head>
+    <script>
+        function SetSort(SortOrder) {
+            document.getElementById("Order").value = SortOrder;
+            document.getElementById("form1").submit();
+        }
+    </script>
+</head>
+
+<h2>Employees List</h2>
+<table class="table">
+    <thead>
+        <tr>
+            
+            <th onclick="SetSort(@(SortOrder == "IDASC" ? "\"IDDESC\"" : "\"IDASC\""))">
+                @Html.DisplayNameFor(model => model.Id)
+                @(SortOrder == "IDASC" ? "↓" : "↑")
+            </th>
+            <th onclick="SetSort(@(SortOrder == "PTASC" ? "\"PTDESC\"" : "\"PTASC\""))">
+                @Html.DisplayNameFor(model => model.ProjectType)
+                @(SortOrder == "PTASC" ? "↓" : "↑")
+            </th>
+            <th onclick="SetSort(@(SortOrder == "SDASC" ? "\"SDDESC\"" : "\"SDASC\""))">
+                @Html.DisplayNameFor(model => model.StartDate)
+                @(SortOrder == "SDASC" ? "↓" : "↑")
+            </th>
+            <th onclick="SetSort(@(SortOrder == "EDASC" ? "\"EDDESC\"" : "\"EDASC\""))">
+                @Html.DisplayNameFor(model => model.EndDate)
+                @(SortOrder == "EDASC" ? "↓" : "↑")
+            </th>
+            <th onclick="SetSort(@(SortOrder == "PMASC" ? "\"PMDESC\"" : "\"PMASC\""))">
+                @Html.DisplayNameFor(model => model.ProjectManager)
+                @(SortOrder == "PMASC" ? "↓" : "↑")
+            </th>
+            <th onclick="SetSort(@(SortOrder == "STSASC" ? "\"STSDESC\"" : "\"STSASC\""))">
+                @Html.DisplayNameFor(model => model.Status)
+                @(SortOrder == "STSASC" ? "↓" : "↑")
+            </th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @(((List<string>)ViewData["ProjectTypes"])[@item.ProjectType])
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StartDate)
+                </td>
+                <td>
+                    @(item.EndDate == null ? "Unspecified" : item.EndDate.Value)
+                </td>
+                
+                <td>
+                    @item.ProjectManagerNavigation.FullName
+                </td>
+                <td>
+                    @(item.Status ? "Active" : "Deactivated")
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id"><button class="btn-primary">Edit</button></a>
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.Id"><button class="btn-primary">Details</button></a>
+                </td>
+                <td>
+                    @if(item.Status == true)
+                    {
+                        <a asp-action="Deactivate" asp-route-id="@item.Id"><button class="btn-primary">Deactivate</button></a>
+                    }
+                    else
+                    {
+                        <a asp-action="Deactivate" asp-route-id="@item.Id"><button class="btn-primary">Activate</button></a>
+                    }       
+                    
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a asp-controller="Projects" asp-action="AddProject"><button class="btn-primary">Add new Project</button></a>
+<form asp-action="Index" method="get" id="form1">
+    <input type="hidden" id="Order" name="Order" />
+</form>
+
+

@@ -4,6 +4,7 @@
 @{
     ViewData["Title"] = "Add Employee";
 }
+@model bool
 <h2>Add a new Employee</h2>
 <form id="AddEmployeeForm" asp-controller="Employees" asp-action="AddEmployee" method="post" style="padding:1%">
     <label class="form-label">FullName</label><br />
@@ -15,7 +16,7 @@
     <label class="form-label">Active</label>
     <input type="checkbox" name="Status" id="Active"/><br />
     
-    <label class="form-label">Select Peoples Partner</label>
+    <label class="form-label">Peoples Partner</label>
     @Html.DropDownList("peoplesPartner",
             new SelectList(((EmployeeModel)ViewData["EmployeeModel"]).EmployeeList, "Value", "Text"),
             "Select Peoples Partner",

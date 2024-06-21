@@ -7,9 +7,9 @@ namespace Recrutiment_Test.Models;
 public partial class ApprovalRequest
 {
     public int Id { get; set; }
-    [Display(Name ="Approver ID")]
+    [Display(Name = "Approver ID")]
     public int Approver { get; set; }
-    [Display(Name = "Leave Request ID")]
+    [Display(Name = "Leave Request")]
     public int LeaveRequest { get; set; }
 
     public int Status { get; set; }

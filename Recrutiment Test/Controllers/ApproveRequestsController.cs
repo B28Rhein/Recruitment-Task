@@ -181,7 +181,7 @@ namespace Recrutiment_Test.Controllers
             return View(ApprovalRequest);
         }
         [HttpPost]
-        public async Task<IActionResult> Approve(int ID, bool disactivate)
+        public async Task<IActionResult> Approve(int ID, bool approve)
         {
             if (ID == null)
             {
@@ -193,7 +193,7 @@ namespace Recrutiment_Test.Controllers
             {
                 return NotFound();
             }
-            if (disactivate)
+            if (approve)
             {
                 ApprovalRequest.Status = 1;
                 if (ModelState.IsValid)
@@ -234,7 +234,7 @@ namespace Recrutiment_Test.Controllers
             return View(ApprovalRequest);
         }
         [HttpPost]
-        public async Task<IActionResult> Reject(int ID, bool disactivate)
+        public async Task<IActionResult> Reject(int ID, bool reject)
         {
             if (ID == null)
             {
@@ -246,7 +246,7 @@ namespace Recrutiment_Test.Controllers
             {
                 return NotFound();
             }
-            if (disactivate)
+            if (reject)
             {
                 ApprovalRequest.Status = 2;
                 if (ModelState.IsValid)

@@ -13,7 +13,6 @@ namespace Recrutiment_Test.Controllers
             "HR Manager",
             "Project Manager",
             "Employee",
-            "Administrator"
         };
         public static List<string> subdivisions = new List<string>()
         {
@@ -318,7 +317,7 @@ namespace Recrutiment_Test.Controllers
             return View(Employee);
         }
         [HttpPost]
-        public async Task<IActionResult> Deactivate(int ID, bool disactivate)
+        public async Task<IActionResult> Deactivate(int ID, bool deactivate)
         {
             if (ID == null)
             {
@@ -330,7 +329,7 @@ namespace Recrutiment_Test.Controllers
             {
                 return NotFound();
             }
-            if (disactivate)
+            if (deactivate)
             {
                 Employee.Status = !Employee.Status;
                 if (ModelState.IsValid)

@@ -1,0 +1,40 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model Recrutiment_Test.Models.Project
+@{
+    ViewData["Title"] = "Edit Project " + Model.Id;
+}
+<h1>Edit Project @(Model.Id)</h1>
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit" method="post">
+            <input type="hidden" asp-for="Id" />
+            <label class="form-label" >Project Type</label><br />
+            @Html.DropDownList("projectType", ViewBag.ProjectTypes, "Select Project Type", new { @class = "form-control" })
+            <label class="form-label">Start Date</label>
+            <input type="date" name="starDate" id="startDate" asp-for="StartDate"/><br />
+            <label class="form-label">End Date</label>
+            <input type="date" name="endDate" id="startDate" asp-for="EndDate" /><br />
+            <label class="form-label">Peoples Partner</label>
+            @Html.DropDownList("projectManager",
+                     new SelectList(((EmployeeModel)ViewData["ProjectManagers"]).EmployeeList, "Value", "Text"),
+                     "Select Peoples Partner",
+                     new { @class = "form-control" })
+            <label class="form-label">Comment</label>
+            <textarea class="form-control" rows="4" cols="10" name="comment" id="comment" asp-for="Comment"></textarea>
+            <label class="form-label">Active</label>
+            <input type="checkbox" name="Status" id="Active" asp-for="Status" /><br />
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+<div>
+    <a asp-action="Index"><button class="btn-primary">Back</button></a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
