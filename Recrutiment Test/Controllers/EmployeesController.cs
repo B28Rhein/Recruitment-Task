@@ -363,7 +363,7 @@ namespace Recrutiment_Test.Controllers
                 return NotFound();
             }
 
-            var Employee = await context.Employees.Include(p => p.InversePeoplePartnerNavigation).FirstOrDefaultAsync(p => p.Id == id);
+            var Employee = await context.Employees.Include(p => p.PeoplePartnerNavigation).FirstOrDefaultAsync(p => p.Id == id);
             if (Employee == null)
             {
                 return NotFound();

@@ -17,26 +17,16 @@
     <div>
         <input type="hidden" id="disactivate" name="disactivate" />
         <input type="hidden" name="ID" id="ID" value="@Model.Id" />
-        <h1>Are you sure that you want to @(Model.Status ? "deactivate":"activate") employee @Model.Id @Model.FullName</h1>
+        <h3 class="text-center">Are you sure that you want to @(Model.Status ? "deactivate":"activate") employee @Model.Id @Model.FullName</h3>
         <br />
         <div>
-            <table>
-                <tr>
-                    <td>
-                        <input type="button" name="yes" value="YES" class="btn btn-primary" onclick="disactivation(true)" />
-                    </td>
-                    <td>
-                        <input type="button" name="no" value="NO" class="btn btn-primary" onclick="disactivation(false)" />
-                    </td>
-                </tr>
-            </table>
             <div class="container">
-                <div class="row-cols-2">
-                    <div class="col-sm">
-                        <input type="button" name="yes" value="YES" class="btn btn-primary" onclick="disactivation(true)" />
+                <div class="row">
+                    <div class="col text-center">
+                        <input type="button" name="yes" value="YES" class="btn btn-danger btn-lg" onclick="disactivation(true)" />
                     </div>
-                    <div class="col-sm">
-                        <input type="button" name="no" value="NO" class="btn btn-primary" onclick="disactivation(false)" />
+                    <div class="col text-center">
+                        <input type="button" name="no" value="NO" class="btn btn-primary btn-lg" onclick="disactivation(false)" />
                     </div>
                 </div>
                 

@@ -58,6 +58,25 @@ public partial class RecruitmentDbContext : DbContext
                 .HasForeignKey(d => d.PeoplePartner)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Employees_Employees");
+
+            entity.HasMany(d => d.Projects).WithMany(p => p.Employees)
+                .UsingEntity<Dictionary<string, object>>(
+                    "EmployeeProjectAssignment",
+                    r => r.HasOne<Project>().WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_EmployeeProjectAssignments_Projects"),
+                    l => l.HasOne<Employee>().WithMany()
+                        .HasForeignKey("EmployeeId")
+                        .OnDelete(DeleteBehavior.ClientSetNull)
+                        .HasConstraintName("FK_EmployeeProjectAssignments_Employees"),
+                    j =>
+                    {
+                        j.HasKey("EmployeeId", "ProjectId");
+                        j.ToTable("EmployeeProjectAssignments");
+                        j.IndexerProperty<int>("EmployeeId").HasColumnName("EmployeeID");
+                        j.IndexerProperty<int>("ProjectId").HasColumnName("ProjectID");
+                    });
         });
 
         modelBuilder.Entity<LeaveRequest>(entity =>
@@ -90,8 +109,9 @@ public partial class RecruitmentDbContext : DbContext
             entity.Property(e => e.ProjectType).HasColumnName("Project Type");
             entity.Property(e => e.StartDate).HasColumnName("Start Date");
 
-            entity.HasOne(d => d.ProjectManagerNavigation).WithMany(p => p.Projects)
+            entity.HasOne(d => d.ProjectManagerNavigation).WithMany(p => p.ProjectsNavigation)
                 .HasForeignKey(d => d.ProjectManager)
+                .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Projects_Employees");
         });
 

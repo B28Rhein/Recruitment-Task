@@ -13,7 +13,7 @@ public partial class Employee
     public int Subdivision { get; set; }
 
     public int Position { get; set; }
-    
+
     public bool Status { get; set; }
     [Display(Name = "People Partner")]
     public int PeoplePartner { get; set; }
@@ -27,6 +27,8 @@ public partial class Employee
     public virtual ICollection<LeaveRequest> LeaveRequests { get; set; } = new List<LeaveRequest>();
 
     public virtual Employee PeoplePartnerNavigation { get; set; } = null!;
+
+    public virtual ICollection<Project> ProjectsNavigation { get; set; } = new List<Project>();
 
     public virtual ICollection<Project> Projects { get; set; } = new List<Project>();
 }
