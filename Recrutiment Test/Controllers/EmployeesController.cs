@@ -234,7 +234,7 @@ namespace Recrutiment_Test.Controllers
             var data = context.Employees.ToList();
             foreach (var item in data)
             {
-                if (item.Position == 0)
+                if (item.Position == 0 && item.Id != id)
                 {
                     employeeModel.EmployeeList.Add(new SelectListItem
                     {
@@ -355,6 +355,23 @@ namespace Recrutiment_Test.Controllers
                 }
             }
             return RedirectToAction("Index");
+        }
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var Employee = await context.Employees.Include(p => p.InversePeoplePartnerNavigation).FirstOrDefaultAsync(p => p.Id == id);
+            if (Employee == null)
+            {
+                return NotFound();
+            }
+            ViewData["Positions"] = positions;
+            ViewData["Subdivisions"] = subdivisions;
+
+            return View(Employee);
         }
     }
 }

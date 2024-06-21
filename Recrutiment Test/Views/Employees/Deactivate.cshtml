@@ -20,7 +20,27 @@
         <h1>Are you sure that you want to @(Model.Status ? "deactivate":"activate") employee @Model.Id @Model.FullName</h1>
         <br />
         <div>
-            <input type="button" name="yes" value="YES" class="btn btn-primary" onclick="disactivation(true)" /><input type="button" name="no" value="NO" class="btn btn-primary" onclick="disactivation(false)" />
+            <table>
+                <tr>
+                    <td>
+                        <input type="button" name="yes" value="YES" class="btn btn-primary" onclick="disactivation(true)" />
+                    </td>
+                    <td>
+                        <input type="button" name="no" value="NO" class="btn btn-primary" onclick="disactivation(false)" />
+                    </td>
+                </tr>
+            </table>
+            <div class="container">
+                <div class="row-cols-2">
+                    <div class="col-sm">
+                        <input type="button" name="yes" value="YES" class="btn btn-primary" onclick="disactivation(true)" />
+                    </div>
+                    <div class="col-sm">
+                        <input type="button" name="no" value="NO" class="btn btn-primary" onclick="disactivation(false)" />
+                    </div>
+                </div>
+                
+            </div>
         </div>
     </div>
     
