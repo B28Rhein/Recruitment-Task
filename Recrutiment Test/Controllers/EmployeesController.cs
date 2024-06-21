@@ -33,7 +33,112 @@ namespace Recrutiment_Test.Controllers
         {
             ViewData["Positions"] = positions;
             ViewData["Subdivisions"] = subdivisions;
+            ViewData["SortOrder"] = "IDASC";
             return View(await context.Employees.ToListAsync());
+        }
+        [HttpGet]
+        public async Task<IActionResult> Index(string Order)
+        {
+            Order = Order == null ? "IDASC" : Order;
+            ViewData["Positions"] = positions;
+            ViewData["Subdivisions"] = subdivisions;
+            ViewData["SortOrder"] = Order;
+            List<Employee> employees = await context.Employees.ToListAsync();
+            switch (Order)
+            {
+                case "IDASC":
+                    employees.Sort(delegate (Employee X, Employee Y)
+                    {
+                        return X.Id.CompareTo(Y.Id);
+                    });
+                    break;
+                case "IDDESC":
+                    employees.Sort(delegate (Employee X, Employee Y)
+                    {
+                        return -X.Id.CompareTo(Y.Id);
+                    });
+                    break;
+                case "NAMEASC":
+                    employees.Sort(delegate (Employee X, Employee Y)
+                    {
+                        return X.FullName.CompareTo(Y.FullName);
+                    });
+                    break;
+                case "NAMEDESC":
+                    employees.Sort(delegate (Employee X, Employee Y)
+                    {
+                        return -X.FullName.CompareTo(Y.FullName);
+                    });
+                    break;
+                case "SDASC":
+                    employees.Sort(delegate (Employee X, Employee Y)
+                    {
+                        return X.Subdivision.CompareTo(Y.Subdivision);
+                    });
+                    break;
+                case "SDDESC":
+                    employees.Sort(delegate (Employee X, Employee Y)
+                    {
+                        return -X.Subdivision.CompareTo(Y.Subdivision);
+                    });
+                    break;
+                case "POSASC":
+                    employees.Sort(delegate (Employee X, Employee Y)
+                    {
+                        return X.Position.CompareTo(Y.Position);
+                    });
+                    break;
+                case "POSDESC":
+                    employees.Sort(delegate (Employee X, Employee Y)
+                    {
+                        return -X.Position.CompareTo(Y.Position);
+                    });
+                    break;
+                case "STSASC":
+                    employees.Sort(delegate (Employee X, Employee Y)
+                    {
+                        return X.Status.CompareTo(Y.Status);
+                    });
+                    break;
+                case "STSDESC":
+                    employees.Sort(delegate (Employee X, Employee Y)
+                    {
+                        return -X.Status.CompareTo(Y.Status);
+                    });
+                    break;
+                case "PPASC":
+                    employees.Sort(delegate (Employee X, Employee Y)
+                    {
+                        return X.PeoplePartner.CompareTo(Y.PeoplePartner);
+                    });
+                    break;
+                case "PPDESC":
+                    employees.Sort(delegate (Employee X, Employee Y)
+                    {
+                        return -X.PeoplePartner.CompareTo(Y.PeoplePartner);
+
+                    });
+                    break;
+                case "OOOBASC":
+                    employees.Sort(delegate (Employee X, Employee Y)
+                    {
+                        return X.OutOfOfficeBalance.CompareTo(Y.OutOfOfficeBalance);
+                    });
+                    break;
+                case "OOOBDESC":
+                    employees.Sort(delegate (Employee X, Employee Y)
+                    {
+                        return -X.OutOfOfficeBalance.CompareTo(Y.OutOfOfficeBalance);
+                    });
+                    break;
+                default:
+                    employees.Sort(delegate (Employee X, Employee Y)
+                    {
+                        return X.Id.CompareTo(Y.Id);
+                    });
+                    break;
+            }
+            return View(employees);
         }
         [HttpPost]
         public async Task<IActionResult> AddEmployee(string fullName, string subdivision, string position, string Status, int peoplesPartner, int oooBalance)
@@ -86,7 +191,7 @@ namespace Recrutiment_Test.Controllers
             ViewBag.Position = new SelectList(positions);
             ViewBag.Subdivision = new SelectList(subdivisions);
             ViewData["EmployeeModel"] = employeeModel;
-            return View();
+            return View(false);
         }
         public IActionResult AddEmployee()
         {
@@ -108,7 +213,7 @@ namespace Recrutiment_Test.Controllers
             ViewBag.Position = new SelectList(positions);
             ViewBag.Subdivision = new SelectList(subdivisions);
             ViewData["EmployeeModel"] = employeeModel;
-            return View();
+            return View(true);
         }
         public async Task<IActionResult> Edit(int? id)
         {
@@ -227,7 +332,7 @@ namespace Recrutiment_Test.Controllers
             }
             if (disactivate)
             {
-                Employee.Status = false;
+                Employee.Status = !Employee.Status;
                 if (ModelState.IsValid)
                 {
                     try

@@ -17,7 +17,7 @@
     <div>
         <input type="hidden" id="disactivate" name="disactivate" />
         <input type="hidden" name="ID" id="ID" value="@Model.Id" />
-        <h1>Are you sure that you want to deactivate employee @Model.Id @Model.FullName</h1>
+        <h1>Are you sure that you want to @(Model.Status ? "deactivate":"activate") employee @Model.Id @Model.FullName</h1>
         <br />
         <div>
             <input type="button" name="yes" value="YES" class="btn btn-primary" onclick="disactivation(true)" /><input type="button" name="no" value="NO" class="btn btn-primary" onclick="disactivation(false)" />

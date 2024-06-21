@@ -3,33 +3,54 @@
 *@
 @{
     ViewData["Title"] = "Employees";
+    string SortOrder = (string)ViewData["SortOrder"];
 }
 @model IEnumerable<Recrutiment_Test.Models.Employee>
+
+<head>
+    <script>
+        function SetSort(SortOrder) {
+            document.getElementById("Order").value = SortOrder;
+            document.getElementById("form1").submit();
+        }
+    </script>
+</head>
+
 <h2>Employees List</h2>
 <table class="table">
     <thead>
         <tr>
-            <th>
+            
+            <th onclick="SetSort(@(SortOrder == "IDASC" ? "\"IDDESC\"" : "\"IDASC\""))">
                 @Html.DisplayNameFor(model => model.Id)
+                @(SortOrder == "IDASC" ? "↓" : "↑")
             </th>
-            <th>
+            <th onclick="SetSort(@(SortOrder == "NAMEASC" ? "\"NAMEDESC\"" : "\"NAMEASC\""))">
                 @Html.DisplayNameFor(model => model.FullName)
+                @(SortOrder == "NAMEASC" ? "↓" : "↑")
             </th>
-            <th>
+            <th onclick="SetSort(@(SortOrder == "SDASC" ? "\"SDDESC\"" : "\"SDASC\""))">
                 @Html.DisplayNameFor(model => model.Subdivision)
+                @(SortOrder == "SDASC" ? "↓" : "↑")
             </th>
-            <th>
+            <th onclick="SetSort(@(SortOrder == "POSASC" ? "\"POSDESC\"" : "\"POSASC\""))">
                 @Html.DisplayNameFor(model => model.Position)
+                @(SortOrder == "POSASC" ? "↓" : "↑")
             </th>
-            <th>
+            <th onclick="SetSort(@(SortOrder == "STSASC" ? "\"STSDESC\"" : "\"STSASC\""))">
                 @Html.DisplayNameFor(model => model.Status)
+                @(SortOrder == "STSASC" ? "↓" : "↑")
             </th>
-            <th>
+            <th onclick="SetSort(@(SortOrder == "PPASC" ? "\"PPDESC\"" : "\"PPASC\""))">
                 @Html.DisplayNameFor(model => model.PeoplePartner)
+                @(SortOrder == "PPASC" ? "↓" : "↑")
             </th>
-            <th>
+            <th onclick="SetSort(@(SortOrder == "OOOBASC" ? "\"OOOBDESC\"" : "\"OOOBASC\""))">
                 @Html.DisplayNameFor(model => model.OutOfOfficeBalance)
+                @(SortOrder == "OOOBASC" ? "↓" : "↑")
             </th>
+            <th></th>
+            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -49,10 +70,10 @@
                     @(((List<string>)ViewData["Positions"])[@item.Position])
                 </td>
                 <td>
-                    @item.Status
+                    @(item.Status ? "Active" : "Deactivated")
                 </td>
                 <td>
-                    @(((List<Employee>)Model).Find(x => x.Id == item.PeoplePartner).FullName)
+                    @item.PeoplePartnerNavigation.FullName
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.OutOfOfficeBalance) days
@@ -61,17 +82,14 @@
                     <a asp-action="Edit" asp-route-id="@item.Id">Edit</a>
                 </td>
                 <td>
-                    @{
-                        if(item.Status == true)
-                        {
-                            Html.Raw("<a asp-action=\"Deactivate\" asp-route-id=\"@item.Id\">Deactivate</a>");
-                        }
-                        else
-                        {
-                            Html.Raw("<a asp-action=\"Deactivate\" asp-route-id=\"@item.Id\">Activate</a>");
-                        }
-                        Html.Raw($"<a href=\"Employees/Deactivate/{item.Id}\">Activate</a>");
-                    }                
+                    @if(item.Status == true)
+                    {
+                        <a asp-action="Deactivate" asp-route-id="@item.Id">Deactivate</a>
+                    }
+                    else
+                    {
+                        <a asp-action="Deactivate" asp-route-id="@item.Id">Activate</a>
+                    }       
                     
                 </td>
             </tr>
@@ -79,6 +97,8 @@
     </tbody>
 </table>
 <a asp-controller="Employees" asp-action="AddEmployee"><button class="btn-primary">Add new Employee</button></a>
-
+<form asp-action="Index" method="get" id="form1">
+    <input type="hidden" id="Order" name="Order" />
+</form>
 
 
