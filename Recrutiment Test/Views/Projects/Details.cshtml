@@ -77,10 +77,10 @@
                     @Html.DisplayFor(modelItem => item.FullName)
                 </td>
                 <td>
-                    @(Recrutiment_Test.Controllers.EmployeesController.subdivisions)[@item.Subdivision])
+                    @(Recrutiment_Test.Controllers.EmployeesController.subdivisions)[item.Subdivision])
                 </td>
                 <td>
-                    @(Recrutiment_Test.Controllers.EmployeesController.positions)[@item.Position])
+                    @(Recrutiment_Test.Controllers.EmployeesController.positions)[item.Position])
                 </td>
                 <td>
                     @(item.Status ? "Active" : "Deactivated")

@@ -15,6 +15,8 @@ public partial class RecruitmentDbContext : DbContext
     {
     }
 
+    public virtual DbSet<AppUser> AppUsers { get; set; }
+
     public virtual DbSet<ApprovalRequest> ApprovalRequests { get; set; }
 
     public virtual DbSet<Employee> Employees { get; set; }
@@ -25,10 +27,22 @@ public partial class RecruitmentDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("server=(localdb)\\MSSQLLocalDB; database=RecruitmentDB; trusted_connection=true;");
+        => optionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB; Database=RecruitmentDB; Trusted_Connection=True;");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<AppUser>(entity =>
+        {
+            entity.Property(e => e.PasswordHashed)
+                .HasMaxLength(44)
+                .IsFixedLength();
+            entity.Property(e => e.UserName).HasMaxLength(50);
+
+            entity.HasOne(d => d.Employee).WithMany(p => p.AppUsers)
+                .HasForeignKey(d => d.EmployeeId)
+                .HasConstraintName("FK_AppUsers_Employees");
+        });
+
         modelBuilder.Entity<ApprovalRequest>(entity =>
         {
             entity.ToTable("Approval Requests");

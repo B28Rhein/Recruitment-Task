@@ -20,6 +20,8 @@ public partial class Employee
     [Display(Name = "Out-of-Office Balance")]
     public int OutOfOfficeBalance { get; set; }
 
+    public virtual ICollection<AppUser> AppUsers { get; set; } = new List<AppUser>();
+
     public virtual ICollection<ApprovalRequest> ApprovalRequests { get; set; } = new List<ApprovalRequest>();
 
     public virtual ICollection<Employee> InversePeoplePartnerNavigation { get; set; } = new List<Employee>();

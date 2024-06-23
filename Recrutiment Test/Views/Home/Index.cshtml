@@ -5,4 +5,6 @@
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    @(User.Identity.Name == null ? "true true" : User.Identity.Name)
+    @(User.Identity.IsAuthenticated == null ? "true true" : User.Claims.ToList()[1])
 </div>
