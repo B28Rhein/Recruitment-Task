@@ -36,7 +36,7 @@
     </tr>
     <tr>
         <th>Comment: </th>
-        <th>@Model.Comment</th>
+        <th>@(Model.Comment == null ? "No comment given" : Model.Comment)</th>
     </tr>
 </table>
 <div>

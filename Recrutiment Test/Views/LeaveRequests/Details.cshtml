@@ -6,7 +6,7 @@
     ViewData["Title"] = $"Details of Leave Request {Model.Id}";
 }
 <h3>
-    Details for project @Model.Id
+    Details for Leave Request @Model.Id
 </h3>
 <table class="table">
     <tr>
@@ -18,7 +18,7 @@
         <th>@Model.EmployeeNavigation.FullName (Id: @Model.EmployeeNavigation.Id)</th>
     </tr>
     <tr>
-        <th>Project Type:</th>
+        <th>Absence Reason::</th>
         <th>@(((List<string>)ViewData["AbsenceReasons"])[Model.AbsenceReason])</th>
     </tr>
     <tr>
@@ -29,8 +29,6 @@
         <th>End Date: </th>
         <th>@Model.EndDate</th>
     </tr>
-    
-    
     <tr>
         <th>Status: </th>
         <th>@(((List<string>)ViewData["Statuses"])[Model.Status])</th>

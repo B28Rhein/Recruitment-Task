@@ -16,7 +16,7 @@
     </script>
 </head>
 
-<h2>Employees List</h2>
+<h2>Leave Requests List</h2>
 <table class="table">
     <thead>
         <tr>
@@ -74,14 +74,20 @@
                     @(((List<string>)ViewData["Statuses"])[@item.Status])
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id"><button class="btn-primary">Edit</button></a>
+                    @if(item.Status == 0)
+                    {
+                        <a asp-action="Edit" asp-route-id="@item.Id"><button class="btn-primary">Edit</button></a>
+                    }
                 </td>
                 <td>
                     <a asp-action="Details" asp-route-id="@item.Id"><button class="btn-primary">Details</button></a>
                 </td>
                 <td>
-                    <a asp-action="Submit" asp-route-id="@item.Id"><button class="btn-primary">Submit</button></a>
-                    <a asp-action="Cancel" asp-route-id="@item.Id"><button class="btn-primary">Cancel</button></a>  
+                    @if(item.Status == 0)
+                    {
+                        <a asp-action="Submit" asp-route-id="@item.Id"><button class="btn-primary">Submit</button></a>
+                        <a asp-action="Cancel" asp-route-id="@item.Id"><button class="btn-primary">Cancel</button></a>
+                    }             
                 </td>
             </tr>
         }
