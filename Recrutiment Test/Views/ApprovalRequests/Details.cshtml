@@ -1,0 +1,47 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@model Recrutiment_Test.Models.ApprovalRequest
+@{
+    ViewData["Title"] = $"Details of Approval Request {Model.Id}";
+}
+<h3>
+    Details for Approval Request @Model.Id
+</h3>
+<table class="table">
+    <tr>
+        <th>Id: </th>
+        <th>@Model.Id</th>
+    </tr>
+    <tr>
+        <th>Approver:</th>
+        <th>@Model.ApproverNavigation.FullName (Id: @Model.ApproverNavigation.Id)</th>
+    </tr>
+    <tr>
+        <th>Requesting Leave:</th>
+        <th>@Model.LeaveRequestNavigation.EmployeeNavigation.FullName (@Model.LeaveRequestNavigation.EmployeeNavigation.Id)</th>
+    </tr>
+    <tr>
+        <th>Start Date: </th>
+        <th>@Model.LeaveRequestNavigation.StartDate</th>
+    </tr>
+    <tr>
+        <th>End Date: </th>
+        <th>@Model.LeaveRequestNavigation.EndDate</th>
+    </tr>
+    <tr>
+        <th>Absence Resaon:</th>
+        <th>@(Recrutiment_Test.Controllers.LeaveRequestsController.absenceReasons[Model.LeaveRequestNavigation.AbsenceReason])</th>
+    </tr>
+    <tr>
+        <th>Status: </th>
+        <th>@(((List<string>)ViewData["Statuses"])[Model.Status])</th>
+    </tr>
+    <tr>
+        <th>Comment: </th>
+        <th>@(Model.Comment == null ? "No comment given" : Model.Comment)</th>
+    </tr>
+</table>
+<div>
+    <a asp-action="Index"><button class="btn-primary">Back</button></a>
+</div>

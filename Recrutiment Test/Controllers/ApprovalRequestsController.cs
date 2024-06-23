@@ -6,7 +6,7 @@ using System.Text.Encodings.Web;
 
 namespace Recrutiment_Test.Controllers
 {
-    public class ApproveRequestsController : Controller
+    public class ApprovalRequestsController : Controller
     {
         public static List<string> statuses = new List<string>()
         {
@@ -17,7 +17,7 @@ namespace Recrutiment_Test.Controllers
 
         private readonly RecruitmentDbContext context;
 
-        public ApproveRequestsController(RecruitmentDbContext context) 
+        public ApprovalRequestsController(RecruitmentDbContext context) 
         {
             this.context = context;
         }
@@ -33,7 +33,7 @@ namespace Recrutiment_Test.Controllers
             Order = Order == null ? "IDASC" : Order;
             ViewData["Statuses"] = statuses;
             ViewData["SortOrder"] = Order;
-            List<ApprovalRequest> approvalRequests = await context.ApprovalRequests.ToListAsync();
+            List<ApprovalRequest> approvalRequests = await context.ApprovalRequests.Include(p => p.ApproverNavigation).Include(p => p.LeaveRequestNavigation).ToListAsync();
             switch (Order)
             {
                 case "IDASC":
@@ -93,79 +93,6 @@ namespace Recrutiment_Test.Controllers
             }
             return View(approvalRequests);
         }
-        //[HttpPost]
-        //public async Task<IActionResult> AddApprovalRequest(int Approver, int LeaveRequest, int status, string? Comment)
-        //{
-        //    ApprovalRequest approvalRequests = new ApprovalRequest()
-        //    {
-        //        Approver = Approver,
-        //        LeaveRequest = LeaveRequest,
-        //        Status = status,
-        //        Comment = Comment
-        //    };
-        //    if (ModelState.IsValid)
-        //    {
-        //        try
-        //        {
-        //            context.Add(approvalRequests);
-        //            await context.SaveChangesAsync();
-        //        }
-        //        catch (DbUpdateConcurrencyException)
-        //        {
-        //            if (context.ApprovalRequests.Find(approvalRequests.Id) == null)
-        //            {
-        //                return NotFound();
-        //            }
-        //            else
-        //            {
-        //                throw;
-        //            }
-        //        }
-        //        return RedirectToAction("Index");
-        //    }
-
-        //    EmployeeModel Approvers = new EmployeeModel();
-        //    Approvers.EmployeeList = new List<SelectListItem>();
-
-        //    var data = context.Employees.ToList();
-        //    foreach (var item in data)
-        //    {
-        //        if (item.Position == 0)
-        //        {
-        //            employeeModel.EmployeeList.Add(new SelectListItem
-        //            {
-        //                Text = item.FullName,
-        //                Value = item.Id.ToString()
-        //            });
-        //        }
-        //    }
-        //    ViewBag.Position = new SelectList(positions);
-        //    ViewBag.Subdivision = new SelectList(subdivisions);
-        //    ViewData["EmployeeModel"] = employeeModel;
-        //    return View(false);
-        //}
-        //public IActionResult AddApprovalRequest()
-        //{
-        //    EmployeeModel employeeModel = new EmployeeModel();
-        //    employeeModel.EmployeeList = new List<SelectListItem>();
-            
-        //    var data = context.ApprovalRequests.ToList();
-        //    foreach (var item in data)
-        //    {
-        //        if(item.Position == 0)
-        //        {
-        //            employeeModel.EmployeeList.Add(new SelectListItem
-        //            {
-        //                Text = item.FullName,
-        //                Value = item.Id.ToString()
-        //            });
-        //        }
-        //    }
-        //    ViewBag.Position = new SelectList(positions);
-        //    ViewBag.Subdivision = new SelectList(subdivisions);
-        //    ViewData["EmployeeModel"] = employeeModel;
-        //    return View(true);
-        //}
         public async Task<IActionResult> Approve(int? id)
         {
             if (id == null)
@@ -188,7 +115,7 @@ namespace Recrutiment_Test.Controllers
                 return NotFound();
             }
 
-            var ApprovalRequest = await context.ApprovalRequests.FindAsync(ID);
+            var ApprovalRequest = await context.ApprovalRequests.Include(p => p.LeaveRequestNavigation).FirstOrDefaultAsync(p => p.Id == ID);
             if (ApprovalRequest == null)
             {
                 return NotFound();
@@ -201,6 +128,9 @@ namespace Recrutiment_Test.Controllers
                     try
                     {
                         context.Update(ApprovalRequest);
+                        LeaveRequest leaveRequest = ApprovalRequest.LeaveRequestNavigation;
+                        leaveRequest.Status = 1;
+                        context.Update(leaveRequest);
                         await context.SaveChangesAsync();
                     }
                     catch (DbUpdateConcurrencyException)
@@ -254,6 +184,9 @@ namespace Recrutiment_Test.Controllers
                     try
                     {
                         context.Update(ApprovalRequest);
+                        LeaveRequest leaveRequest = ApprovalRequest.LeaveRequestNavigation;
+                        leaveRequest.Status = 2;
+                        context.Update(leaveRequest);
                         await context.SaveChangesAsync();
                     }
                     catch (DbUpdateConcurrencyException)
@@ -279,7 +212,7 @@ namespace Recrutiment_Test.Controllers
                 return NotFound();
             }
 
-            var ApprovalRequest = await context.ApprovalRequests.Include(p => p.ApproverNavigation).Include(p => p.LeaveRequestNavigation).FirstOrDefaultAsync(p => p.Id == id);
+            var ApprovalRequest = await context.ApprovalRequests.Include(p => p.ApproverNavigation).Include(p => p.LeaveRequestNavigation).ThenInclude(p => p.EmployeeNavigation).FirstOrDefaultAsync(p => p.Id == id);
             if (ApprovalRequest == null)
             {
                 return NotFound();

@@ -299,39 +299,63 @@ namespace Recrutiment_Test.Controllers
                 return NotFound();
             }
 
-            var LeaveRequest = await context.LeaveRequests.FindAsync(id);
+            var LeaveRequest = await context.LeaveRequests.Include(p => p.EmployeeNavigation).ThenInclude(p => p.ProjectsNavigation).FirstOrDefaultAsync(p => p.Id == id);
             if (LeaveRequest == null)
             {
                 return NotFound();
             }
+            EmployeeModel Approvers = new EmployeeModel();
+            Approvers.EmployeeList = new List<SelectListItem>();
+
+            var data = context.Employees.ToList();
+            foreach (var item in data)
+            {
+                if (item.Id == LeaveRequest.EmployeeNavigation.PeoplePartner || IsPM(item.Id, LeaveRequest.EmployeeNavigation.ProjectsNavigation.ToList()))
+                {
+                    Approvers.EmployeeList.Add(new SelectListItem
+                    {
+                        Text = item.FullName,
+                        Value = item.Id.ToString()
+                    });
+                }
+            }
+            ViewData["EmployeeModel"] = Approvers;
             return View(LeaveRequest);
         }
         [HttpPost]
-        public async Task<IActionResult> Submit(int ID, bool submit)
+        public async Task<IActionResult> Submit(int ID, bool submitInput, int approver)
         {
             if (ID == null)
             {
                 return NotFound();
             }
 
-            var LeaveRequest = await context.LeaveRequests.FindAsync(ID);
-            if (LeaveRequest == null)
+            var leaveRequest = await context.LeaveRequests.Include(p => p.EmployeeNavigation).FirstOrDefaultAsync(p => p.Id == ID);
+            if (leaveRequest == null)
             {
                 return NotFound();
             }
-            if (submit)
+            if (submitInput)
             {
-                LeaveRequest.Status = 1;
+                leaveRequest.Status = 3;
                 if (ModelState.IsValid)
                 {
                     try
                     {
-                        context.Update(LeaveRequest);
+                        context.Update(leaveRequest);
+                        ApprovalRequest approvalRequest = new ApprovalRequest()
+                        {
+                            Approver = approver,
+                            LeaveRequest = leaveRequest.Id,
+                            Status = 0,
+                            Comment = leaveRequest.Comment,
+                        };
+                        context.Add(approvalRequest);
                         await context.SaveChangesAsync();
-                    }
+                }
                     catch (DbUpdateConcurrencyException)
                     {
-                        if (context.LeaveRequests.Find(LeaveRequest.Id) == null)
+                        if (context.LeaveRequests.Find(leaveRequest.Id) == null)
                         {
                             return NotFound();
                         }
@@ -374,7 +398,7 @@ namespace Recrutiment_Test.Controllers
             }
             if (cancel)
             {
-                LeaveRequest.Status = 2;
+                LeaveRequest.Status = 4;
                 if (ModelState.IsValid)
                 {
                     try
@@ -414,6 +438,17 @@ namespace Recrutiment_Test.Controllers
             ViewData["Statuses"] = statuses;
 
             return View(LeaveRequest);
+        }
+        bool IsPM(int id, List<Project> projects)
+        {
+            foreach (Project project in projects)
+            {
+                if (project.ProjectManager == id)
+                {
+                    return true;
+                }
+            }
+            return false;
         }
     }
 }

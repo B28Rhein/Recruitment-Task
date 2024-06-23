@@ -16,7 +16,7 @@
     </script>
 </head>
 
-<h2>Approve Requests List</h2>
+<h2>Approval Requests List</h2>
 <table class="table">
     <thead>
         <tr>
@@ -39,7 +39,6 @@
             </th>
             <th></th>
             <th></th>
-            <th></th>
         </tr>
     </thead>
     <tbody>
@@ -59,13 +58,15 @@
                     @(((List<string>)ViewData["Statuses"])[@item.Status])
                 </td>
                 <td>
-                    <a asp-action="Approve" asp-route-id="@item.Id"><button class="btn-primary">Approve</button></a>
-                </td>
-                <td>
-                    <a asp-action="Reject" asp-route-id="@item.Id"><button class="btn-primary">Reject</button></a>
-                </td>
-                <td>
                     <a asp-action="Details" asp-route-id="@item.Id"><button class="btn-primary">Details</button></a>
+                </td>
+                <td>
+                    @if(item.Status == 0)
+                    {
+                        <a asp-action="Approve" asp-route-id="@item.Id"><button class="btn-primary">Approve</button></a>
+                        <a asp-action="Reject" asp-route-id="@item.Id"><button class="btn-primary">Reject</button></a>
+                    }
+                    
                 </td>
             </tr>
         }
