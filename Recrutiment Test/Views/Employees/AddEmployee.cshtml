@@ -10,9 +10,9 @@
     <label class="form-label">FullName</label><br />
     <input id="fullName" name="fullName" type="text"/><br />
     <label>Subdivision</label>
-    @Html.DropDownList("subdivision", ViewBag.Subdivision, "Select Subdivision", new { @class = "form-control" })
+    @Html.DropDownList("subdivision", ViewBag.Subdivision, "Select Subdivision", new { @class = "form-control", @required = true })
     <label class="form-label">Position</label>
-    @Html.DropDownList("position", ViewBag.positions, "Select position", new { @class = "form-control" })
+    @Html.DropDownList("position", ViewBag.positions, "Select position", new { @class = "form-control", @required = true })
     <label class="form-label">Active</label>
     <input type="checkbox" name="Status" id="Active"/><br />
     
@@ -20,7 +20,7 @@
     @Html.DropDownList("peoplesPartner",
             new SelectList(((EmployeeModel)ViewData["EmployeeModel"]).EmployeeList, "Value", "Text"),
             "Select Peoples Partner",
-            new { @class = "form-control"})
+            new { @class = "form-control", @required = true })
     <label class="form-label">Out-of-Office Balance</label><br />
     <input id="oooBalance" name="oooBalance" type="number" min="0" /><br /><br />
     <div class="form-group">

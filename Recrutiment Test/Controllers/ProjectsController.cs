@@ -77,7 +77,7 @@ namespace Recrutiment_Test.Controllers
                 case "EDASC":
                     project.Sort(delegate (Project X, Project Y)
                     {
-                        if (!(X.EndDate == null && Y.EndDate == null))
+                        if (!(X.EndDate == null || Y.EndDate == null))
                             return X.EndDate.Value.CompareTo(Y.EndDate.Value);
                         else if (X.EndDate != null)
                             return 1;
@@ -89,7 +89,7 @@ namespace Recrutiment_Test.Controllers
                 case "EDDESC":
                     project.Sort(delegate (Project X, Project Y)
                     {
-                        if (!(X.EndDate == null && Y.EndDate == null))
+                        if (!(X.EndDate == null || Y.EndDate == null))
                             return -X.EndDate.Value.CompareTo(Y.EndDate.Value);
                         else if (X.EndDate != null)
                             return -1;
@@ -239,14 +239,15 @@ namespace Recrutiment_Test.Controllers
             return View(Project);
         }
         [HttpPost]
-        public async Task<IActionResult> Edit(int id, int projectType, DateOnly startDate, DateOnly? endDate, int projectManager, string? Comment, bool Status)
+        public async Task<IActionResult> Edit(int id, string projectType, DateOnly startDate, DateOnly? endDate, int projectManager, string? Comment, bool Status)
         {
             Project project = new Project()
             {
                 Id = id,
-                ProjectType = projectType,
+                ProjectType = ProjectTypes.IndexOf(projectType),
                 StartDate = startDate,
                 EndDate = endDate,
+                ProjectManager = projectManager,
                 Comment = Comment,
                 Status = Status
             };
