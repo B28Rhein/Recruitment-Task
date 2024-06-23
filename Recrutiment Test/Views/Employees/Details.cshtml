@@ -38,6 +38,58 @@
         <th>@Model.OutOfOfficeBalance</th>
     </tr>
 </table>
+Assigned to projects:
+<table class="table">
+    <thead>
+        <tr>
+
+            <th>
+                Project ID
+            </th>
+            <th>
+                Project Type
+            </th>
+            <th>
+                Start Date
+            </th>
+            <th>
+                End Date
+            </th>
+            <th>
+                Project Manager
+            </th>
+            <th >
+                Status
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Projects)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @((Recrutiment_Test.Controllers.ProjectsController.ProjectTypes)[@item.ProjectType])
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StartDate)
+                </td>
+                <td>
+                    @(item.EndDate == null ? "Unspecified" : item.EndDate.Value)
+                </td>
+
+                <td>
+                    @item.ProjectManagerNavigation.FullName
+                </td>
+                <td>
+                    @(item.Status ? "Active" : "Deactivated")
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
 <div>
     <a asp-action="Index"><button class="btn-primary">Back</button></a>
 </div>

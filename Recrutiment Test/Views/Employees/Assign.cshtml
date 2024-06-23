@@ -1,0 +1,55 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = $"Assign {Model.Id}"; 
+}
+@model Employee
+<head>
+    <script>
+        function submition(assign) {
+            document.getElementById("assign").value = assign
+            if (assign) {
+                if (document.getElementById("project").value != "") {
+                    document.getElementById("form1").submit();
+                }
+                else document.getElementById("project").style.backgroundColor = "#FF8080"
+            }
+            else
+                document.getElementById("form1").submit();
+        }
+        function returnColor() {
+            document.getElementById("project").style.backgroundColor = "#FFFFFF"
+        }
+    </script>
+</head>
+<form asp-action="Assign" method="post" id="form1">
+    <div>
+        <input type="hidden" id="assign" name="assign" />
+        <input type="hidden" name="ID" id="ID" value="@Model.Id" />
+        <h5>To which project do you want to assign this employee</h5>
+        <div>
+            @Html.DropDownList("project",
+                     new SelectList(((ProjectModel)ViewData["ProjectModel"]).ProjectList, "Value", "Text"),
+                     "Select Project",
+                     new { @class = "form-control", @required = true, @onClick = "returnColor()"})
+        </div>
+        <h3 class="text-center">Are you sure that you want to assign employee @Model.FullName (@Model.Id) to a project?</h3>
+        <br />
+        <div>
+            <div class="container">
+                <div class="row">
+                    <div class="col text-center">
+                        <input type="button" name="yes" value="YES" class="btn btn-success btn-lg" onclick="submition(true)" />
+                    </div>
+                    <div class="col text-center">
+                        <input type="button" name="no" value="NO" class="btn btn-primary btn-lg" onclick="submition(false)" />
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    
+
+</form>

@@ -94,7 +94,9 @@
                     {
                         <a asp-action="Deactivate" asp-route-id="@item.Id"><button class="btn-primary">Activate</button></a>
                     }       
-                    
+                </td>
+                <td>
+                    <a asp-action="Assign" asp-route-id="@item.Id"><button class="btn-primary">Assign to Project</button></a>
                 </td>
             </tr>
         }

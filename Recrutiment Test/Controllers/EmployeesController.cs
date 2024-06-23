@@ -362,7 +362,7 @@ namespace Recrutiment_Test.Controllers
                 return NotFound();
             }
 
-            var Employee = await context.Employees.Include(p => p.PeoplePartnerNavigation).FirstOrDefaultAsync(p => p.Id == id);
+            var Employee = await context.Employees.Include(p => p.PeoplePartnerNavigation).Include(p => p.Projects).ThenInclude(p => p.ProjectManagerNavigation).FirstOrDefaultAsync(p => p.Id == id);
             if (Employee == null)
             {
                 return NotFound();
@@ -371,6 +371,75 @@ namespace Recrutiment_Test.Controllers
             ViewData["Subdivisions"] = subdivisions;
 
             return View(Employee);
+        }
+        public async Task<IActionResult> Assign(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var employee = await context.Employees.Include(p => p.Projects).FirstOrDefaultAsync(p => p.Id == id);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+            ProjectModel Projects = new ProjectModel();
+            Projects.ProjectList = new List<SelectListItem>();
+
+            var data = await context.Projects.ToListAsync();
+            foreach (var item in data)
+            {
+                if (employee.Projects.Count == 0 || employee.Projects.FirstOrDefault(p => p.Id == item.Id) == null)
+                {
+                    Projects.ProjectList.Add(new SelectListItem
+                    {
+                        Text = $"Project id: {item.Id}",
+                        Value = item.Id.ToString()
+                    });
+                }
+            }
+            ViewData["ProjectModel"] = Projects;
+            return View(employee);
+        }
+        [HttpPost]
+        public async Task<IActionResult> Assign(int ID, bool assign, int project)
+        {
+            if (ID == null)
+            {
+                return NotFound();
+            }
+
+            var employee = await context.Employees.Include(p => p.ProjectsNavigation).FirstOrDefaultAsync(p => p.Id == ID);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+            if (assign)
+            {
+                if (ModelState.IsValid)
+                {
+                    employee.Projects.Add(await context.Projects.FindAsync(project));
+                    try
+                    {
+                        context.Update(employee);
+                        await context.SaveChangesAsync();
+                    }
+                    catch (DbUpdateConcurrencyException)
+                    {
+                        if (context.LeaveRequests.Find(employee.Id) == null)
+                        {
+                            return NotFound();
+                        }
+                        else
+                        {
+                            throw;
+                        }
+                    }
+                    return RedirectToAction("Index");
+                }
+            }
+            return RedirectToAction("Index");
         }
     }
 }

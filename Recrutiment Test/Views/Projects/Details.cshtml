@@ -39,6 +39,62 @@
         <th>@(Model.Comment == null ? "No comment given" : Model.Comment)</th>
     </tr>
 </table>
+<table class="table">
+    <thead>
+        <tr>
+
+            <th>
+                Id
+            </th>
+            <th>
+                Full Name
+            </th>
+            <th>
+                Subdivision
+            </th>
+            <th>
+                Position
+            </th>
+            <th>
+                Status
+            </th>
+            <th>
+                People Partner
+            </th>
+            <th>
+                Out-of-Office Balance
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Employees)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.FullName)
+                </td>
+                <td>
+                    @(Recrutiment_Test.Controllers.EmployeesController.subdivisions)[@item.Subdivision])
+                </td>
+                <td>
+                    @(Recrutiment_Test.Controllers.EmployeesController.positions)[@item.Position])
+                </td>
+                <td>
+                    @(item.Status ? "Active" : "Deactivated")
+                </td>
+                <td>
+                    @item.PeoplePartnerNavigation.FullName
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.OutOfOfficeBalance) days
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
 <div>
     <a asp-action="Index"><button class="btn-primary">Back</button></a>
 </div>

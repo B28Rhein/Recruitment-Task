@@ -351,7 +351,7 @@ namespace Recrutiment_Test.Controllers
                 return NotFound();
             }
 
-            var Project = await context.Projects.Include(p => p.ProjectManagerNavigation).FirstOrDefaultAsync(p => p.Id == id);
+            var Project = await context.Projects.Include(p => p.ProjectManagerNavigation).Include(p => p.Employees).ThenInclude(p => p.PeoplePartnerNavigation).FirstOrDefaultAsync(p => p.Id == id);
             if (Project == null)
             {
                 return NotFound();
