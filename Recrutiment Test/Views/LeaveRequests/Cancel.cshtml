@@ -1,0 +1,38 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = $"Cancel Leave Request {Model.Id}"; 
+}
+@model LeaveRequest
+<head>
+    <script>
+        function cancelation(cancel) {
+            document.getElementById("cancel").value = cancel
+            document.getElementById("form1").submit();
+        }
+    </script>
+</head>
+<form asp-action="Cancel" method="post" id="form1">
+    <div>
+        <input type="hidden" id="cancel" name="cancel" />
+        <input type="hidden" name="ID" id="ID" value="@Model.Id" />
+        <h3 class="text-center">Are you sure that you want to cancel leave request @Model.Id</h3>
+        <br />
+        <div>
+            <div class="container">
+                <div class="row">
+                    <div class="col text-center">
+                        <input type="button" name="yes" value="YES" class="btn btn-danger btn-lg" onclick="cancelation(true)" />
+                    </div>
+                    <div class="col text-center">
+                        <input type="button" name="no" value="NO" class="btn btn-primary btn-lg" onclick="cancelation(false)" />
+                    </div>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+    
+
+</form>
