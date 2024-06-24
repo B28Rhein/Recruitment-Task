@@ -13,9 +13,9 @@
             <label class="form-label" >Project Type</label><br />
             @Html.DropDownList("projectType", ViewBag.ProjectTypes, "Select Project Type", new { @class = "form-control" })
             <label class="form-label">Start Date</label><br />
-            <input type="date" name="startDate" id="startDate" asp-for="StartDate"/><br />
+            <input type="date" name="startDate" id="startDate" asp-for="StartDate" min="@DateTime.Now.Date.ToString()" /><br />
             <label class="form-label">End Date</label><br />
-            <input type="date" name="endDate" id="startDate" asp-for="EndDate" /><br />
+            <input type="date" name="endDate" id="startDate" asp-for="EndDate" min="@DateTime.Now.Date.ToString()" /><br />
             <label class="form-label">Project Manager</label>
             @Html.DropDownList("projectManager",
                      new SelectList(((EmployeeModel)ViewData["ProjectManagers"]).EmployeeList, "Value", "Text"),

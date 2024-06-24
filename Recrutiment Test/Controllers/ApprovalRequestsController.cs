@@ -121,7 +121,7 @@ namespace Recrutiment_Test.Controllers
                 return NotFound();
             }
 
-            var ApprovalRequest = await context.ApprovalRequests.Include(p => p.LeaveRequestNavigation).FirstOrDefaultAsync(p => p.Id == ID);
+            var ApprovalRequest = await context.ApprovalRequests.Include(p => p.LeaveRequestNavigation).ThenInclude(p => p.EmployeeNavigation).FirstOrDefaultAsync(p => p.Id == ID);
             if (ApprovalRequest == null)
             {
                 return NotFound();
@@ -137,6 +137,10 @@ namespace Recrutiment_Test.Controllers
                         LeaveRequest leaveRequest = ApprovalRequest.LeaveRequestNavigation;
                         leaveRequest.Status = 1;
                         context.Update(leaveRequest);
+                        int ammountOfDays = ((int)(leaveRequest.EndDate.ToDateTime(new TimeOnly(0, 0)) - leaveRequest.StartDate.ToDateTime(new TimeOnly(0))).TotalDays);
+                        Employee employee = leaveRequest.EmployeeNavigation;
+                        employee.OutOfOfficeBalance -= ammountOfDays;
+                        context.Update(employee);
                         await context.SaveChangesAsync();
                     }
                     catch (DbUpdateConcurrencyException)

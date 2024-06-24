@@ -10,17 +10,25 @@
     <div class="col-md-4">
         <form asp-action="Edit" method="post">
             <input type="hidden" asp-for="Id" />
-            <label class="form-label" >Employee</label><br />
-            @Html.DropDownList("employee",
-                     new SelectList(((EmployeeModel)ViewData["EmployeeModel"]).EmployeeList, "Value", "Text"),
-                     "Select Employee",
-                     new { @class = "form-control", @required = true })
+            @if (!User.IsInRole("Administrator"))
+            {
+                <input type="hidden" id="employee" name="employee" value="@User.Claims.ToList()[2].Value" />
+            }
+            else
+            {
+                <label class="form-label">Employee</label>
+                <br />
+                @Html.DropDownList("employee",
+                         new SelectList(((EmployeeModel)ViewData["EmployeeModel"]).EmployeeList, "Value", "Text"),
+                         "Select Employee",
+                         new { @class = "form-control", @required = true })
+            }
             <label class="form-label">Absence Reason</label>
             @Html.DropDownList("absenceReason", ViewBag.AbsenceReasons, "Select Absence Reason", new { @class = "form-control", @required = true})
             <label class="form-label">Start Date</label><br />
-            <input type="date" name="startDate" id="startDate" asp-for="StartDate"/><br />
+            <input type="date" name="startDate" id="startDate" asp-for="StartDate" min="@DateTime.Now.Date.ToString()" /><br />
             <label class="form-label">End Date</label><br />
-            <input type="date" name="endDate" id="startDate" asp-for="EndDate" /><br />
+            <input type="date" name="endDate" id="startDate" asp-for="EndDate" min="@DateTime.Now.Date.ToString()" /><br />
             <label class="form-label">Comment</label>
             <textarea class="form-control" rows="4" cols="10" name="comment" id="comment" asp-for="Comment"></textarea>
             <input type="hidden" name="Status" id="Status" asp-for="Status" /><br />

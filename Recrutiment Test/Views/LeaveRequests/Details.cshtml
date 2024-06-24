@@ -30,6 +30,10 @@
         <th>@Model.EndDate</th>
     </tr>
     <tr>
+        <th>Number of Days: </th>
+        <th>@((int)(Model.EndDate.ToDateTime(new TimeOnly(0, 0)) - Model.StartDate.ToDateTime(new TimeOnly(0))).TotalDays)</th>
+    </tr>
+    <tr>
         <th>Status: </th>
         <th>@(((List<string>)ViewData["Statuses"])[Model.Status])</th>
     </tr>

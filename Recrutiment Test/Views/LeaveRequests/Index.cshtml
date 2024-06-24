@@ -54,42 +54,45 @@
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
-                    @item.EmployeeNavigation.Id
-                </td>
-                <td>
-                    @(((List<string>)ViewData["AbsenceReasons"])[@item.AbsenceReason])
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.StartDate)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.EndDate)
-                </td>
-                <td>
-                    @(((List<string>)ViewData["Statuses"])[@item.Status])
-                </td>
-                <td>
-                    @if(item.Status == 0 && (User.IsInRole("Employee") || User.IsInRole("Administrator")))
-                    {
-                        <a asp-action="Edit" asp-route-id="@item.Id"><button class="btn-primary">Edit</button></a>
-                    }
-                </td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@item.Id"><button class="btn-primary">Details</button></a>
-                </td>
-                <td>
-                    @if (item.Status == 0 && (User.IsInRole("Employee") || User.IsInRole("Administrator")))
-                    {
-                        <a asp-action="Submit" asp-route-id="@item.Id"><button class="btn-primary">Submit</button></a>
-                        <a asp-action="Cancel" asp-route-id="@item.Id"><button class="btn-primary">Cancel</button></a>
-                    }             
-                </td>
-            </tr>
+            if(User.HasClaim(p => p.Value == item.Employee.ToString()) || !User.IsInRole("Employee"))
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Id)
+                    </td>
+                    <td>
+                        @item.EmployeeNavigation.Id
+                    </td>
+                    <td>
+                        @(((List<string>)ViewData["AbsenceReasons"])[@item.AbsenceReason])
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.StartDate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.EndDate)
+                    </td>
+                    <td>
+                        @(((List<string>)ViewData["Statuses"])[@item.Status])
+                    </td>
+                    <td>
+                        @if (item.Status == 0 && (User.IsInRole("Employee") || User.IsInRole("Administrator")))
+                        {
+                            <a asp-action="Edit" asp-route-id="@item.Id"><button class="btn-primary">Edit</button></a>
+                        }
+                    </td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.Id"><button class="btn-primary">Details</button></a>
+                    </td>
+                    <td>
+                        @if (item.Status == 0 && (User.IsInRole("Employee") || User.IsInRole("Administrator")))
+                        {
+                            <a asp-action="Submit" asp-route-id="@item.Id"><button class="btn-primary">Submit</button></a>
+                            <a asp-action="Cancel" asp-route-id="@item.Id"><button class="btn-primary">Cancel</button></a>
+                        }
+                    </td>
+                </tr>
+            }
         }
     </tbody>
 </table>

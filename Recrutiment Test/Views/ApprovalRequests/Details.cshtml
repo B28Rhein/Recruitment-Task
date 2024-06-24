@@ -30,7 +30,15 @@
         <th>@Model.LeaveRequestNavigation.EndDate</th>
     </tr>
     <tr>
-        <th>Absence Resaon:</th>
+        <th>Number of Days: </th>
+        <th>@((int)(Model.LeaveRequestNavigation.EndDate.ToDateTime(new TimeOnly(0, 0)) - Model.LeaveRequestNavigation.StartDate.ToDateTime(new TimeOnly(0))).TotalDays)</th>
+    </tr>
+    <tr>
+        <th>Employees Out-of-Office Balance</th>
+        <th>@Model.LeaveRequestNavigation.EmployeeNavigation.OutOfOfficeBalance</th>
+    </tr>
+    <tr>
+        <th>Absence Reason:</th>
         <th>@(Recrutiment_Test.Controllers.LeaveRequestsController.absenceReasons[Model.LeaveRequestNavigation.AbsenceReason])</th>
     </tr>
     <tr>

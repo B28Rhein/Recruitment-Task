@@ -308,7 +308,7 @@ namespace Recrutiment_Test.Controllers
                 return NotFound();
             }
 
-            var LeaveRequest = await context.LeaveRequests.Include(p => p.EmployeeNavigation).ThenInclude(p => p.ProjectsNavigation).FirstOrDefaultAsync(p => p.Id == id);
+            var LeaveRequest = await context.LeaveRequests.Include(p => p.EmployeeNavigation).ThenInclude(p => p.Projects).FirstOrDefaultAsync(p => p.Id == id);
             if (LeaveRequest == null)
             {
                 return NotFound();
@@ -319,7 +319,7 @@ namespace Recrutiment_Test.Controllers
             var data = context.Employees.ToList();
             foreach (var item in data)
             {
-                if (item.Id == LeaveRequest.EmployeeNavigation.PeoplePartner || IsPM(item.Id, LeaveRequest.EmployeeNavigation.ProjectsNavigation.ToList()))
+                if (item.Id == LeaveRequest.EmployeeNavigation.PeoplePartner || IsPM(item.Id, LeaveRequest.EmployeeNavigation.Projects.ToList()))
                 {
                     Approvers.EmployeeList.Add(new SelectListItem
                     {
