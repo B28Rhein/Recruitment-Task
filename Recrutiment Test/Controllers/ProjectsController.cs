@@ -7,7 +7,7 @@ using System.Text.Encodings.Web;
 
 namespace Recrutiment_Test.Controllers
 {
-    [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
+    [Authorize]
     public class ProjectsController : Controller
     {
         public static List<string> ProjectTypes = new List<string>()
@@ -24,14 +24,14 @@ namespace Recrutiment_Test.Controllers
         {
             this.context = context;
         }
-        [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             ViewData["ProjectType"] = ProjectTypes;
             ViewData["SortOrder"] = "IDASC";
             return View(await context.Projects.ToListAsync());
         }
-        [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> Index(string Order)
         {
@@ -39,7 +39,7 @@ namespace Recrutiment_Test.Controllers
             ViewData["ProjectTypes"] = ProjectTypes;
             ViewData["SortOrder"] = Order;
             
-            List<Project> project = await context.Projects.Include(p => p.ProjectManagerNavigation).ToListAsync();
+            List<Project> project = await context.Projects.Include(p => p.ProjectManagerNavigation).Include(p => p.Employees).ToListAsync();
             switch (Order)
             {
                 case "IDASC":
@@ -354,7 +354,7 @@ namespace Recrutiment_Test.Controllers
             }
             return RedirectToAction("Index");
         }
-        [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
+        [Authorize]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)

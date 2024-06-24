@@ -9,6 +9,7 @@ using System.Security.Cryptography;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Recrutiment_Test.Controllers
 {
@@ -113,6 +114,7 @@ namespace Recrutiment_Test.Controllers
         [HttpPost]
         public async Task<IActionResult> AddAccount(string username, int employeeId, string password, string role, string Status)
         {
+            bool finished = false;
             AppUser appUser = new AppUser()
             {
                 UserName = username,
@@ -125,8 +127,12 @@ namespace Recrutiment_Test.Controllers
             {
                 try
                 {
-                    context.Add(appUser);
-                    await context.SaveChangesAsync();
+                    if (await context.AppUsers.FirstOrDefaultAsync(p => p.UserName == username) == null)
+                    {
+                        context.Add(appUser);
+                        await context.SaveChangesAsync();
+                        finished = true;
+                    }
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -139,7 +145,10 @@ namespace Recrutiment_Test.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction("Manage");
+                if(finished)
+                {
+                    return RedirectToAction("Manage");
+                }
             }
 
             var accounts = context.AppUsers.Include(a => a.Employee).ToList();

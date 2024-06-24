@@ -15,6 +15,7 @@ namespace Recrutiment_Test.Controllers
             "New",
             "Approved",
             "Rejected",
+            "Cancelled"
         };
 
         private readonly RecruitmentDbContext context;
@@ -120,8 +121,8 @@ namespace Recrutiment_Test.Controllers
             {
                 return NotFound();
             }
-
-            var ApprovalRequest = await context.ApprovalRequests.Include(p => p.LeaveRequestNavigation).ThenInclude(p => p.EmployeeNavigation).FirstOrDefaultAsync(p => p.Id == ID);
+            bool approved = true;
+            var ApprovalRequest = await context.ApprovalRequests.Include(p => p.LeaveRequestNavigation).ThenInclude(p => p.EmployeeNavigation).Include(p => p.LeaveRequestNavigation).ThenInclude(p => p.ApprovalRequests).FirstOrDefaultAsync(p => p.Id == ID);
             if (ApprovalRequest == null)
             {
                 return NotFound();
@@ -135,12 +136,22 @@ namespace Recrutiment_Test.Controllers
                     {
                         context.Update(ApprovalRequest);
                         LeaveRequest leaveRequest = ApprovalRequest.LeaveRequestNavigation;
-                        leaveRequest.Status = 1;
-                        context.Update(leaveRequest);
-                        int ammountOfDays = ((int)(leaveRequest.EndDate.ToDateTime(new TimeOnly(0, 0)) - leaveRequest.StartDate.ToDateTime(new TimeOnly(0))).TotalDays);
-                        Employee employee = leaveRequest.EmployeeNavigation;
-                        employee.OutOfOfficeBalance -= ammountOfDays;
-                        context.Update(employee);
+                        foreach(var approval in leaveRequest.ApprovalRequests)
+                        {
+                            if(approval.Status != 1)
+                            {
+                                approved = false;
+                            }
+                        }
+                        if(approved)
+                        {
+                            leaveRequest.Status = 1;
+                            context.Update(leaveRequest);
+                            int ammountOfDays = ((int)(leaveRequest.EndDate.ToDateTime(new TimeOnly(0, 0)) - leaveRequest.StartDate.ToDateTime(new TimeOnly(0))).TotalDays);
+                            Employee employee = leaveRequest.EmployeeNavigation;
+                            employee.OutOfOfficeBalance -= ammountOfDays;
+                            context.Update(employee);
+                        }
                         await context.SaveChangesAsync();
                     }
                     catch (DbUpdateConcurrencyException)
@@ -176,14 +187,14 @@ namespace Recrutiment_Test.Controllers
         }
         [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
         [HttpPost]
-        public async Task<IActionResult> Reject(int ID, bool reject)
+        public async Task<IActionResult> Reject(int ID, bool reject, string comment)
         {
             if (ID == null)
             {
                 return NotFound();
             }
 
-            var ApprovalRequest = await context.ApprovalRequests.FindAsync(ID);
+            var ApprovalRequest = await context.ApprovalRequests.Include(p => p.LeaveRequestNavigation).ThenInclude(p => p.ApprovalRequests).Include(p => p.ApproverNavigation).FirstOrDefaultAsync(p => p.Id == ID);
             if (ApprovalRequest == null)
             {
                 return NotFound();
@@ -195,9 +206,15 @@ namespace Recrutiment_Test.Controllers
                 {
                     try
                     {
-                        context.Update(ApprovalRequest);
                         LeaveRequest leaveRequest = ApprovalRequest.LeaveRequestNavigation;
                         leaveRequest.Status = 2;
+                        string Comment = leaveRequest.Comment == null ? Comment = $"<br />Request rejected by {ApprovalRequest.ApproverNavigation.FullName} ({ApprovalRequest.ApproverNavigation.Id}) with comment <br />" + comment : Comment = leaveRequest.Comment + $"<br />Request rejected by {ApprovalRequest.ApproverNavigation.FullName} ({ApprovalRequest.ApproverNavigation.Id}) with comment: <br />" + comment;
+                        for (int i = 0; i < leaveRequest.ApprovalRequests.Count; i++) 
+                        {
+                            leaveRequest.ApprovalRequests.ToList()[i].Comment = Comment;
+                            context.Update(leaveRequest.ApprovalRequests.ToList()[i]);
+                        }
+                        leaveRequest.Comment = Comment;
                         context.Update(leaveRequest);
                         await context.SaveChangesAsync();
                     }

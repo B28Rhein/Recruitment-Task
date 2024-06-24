@@ -79,9 +79,12 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.OutOfOfficeBalance) days
                 </td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@item.Id"><button class="btn-primary">Details</button></a>
-                </td>
+                @if (User.IsInRole("Project Manager") || User.IsInRole("Administrator"))
+                {
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.Id"><button class="btn-primary">Details</button></a>
+                    </td>
+                }
                 @if(User.IsInRole("HR Manager") || User.IsInRole("Administrator"))
                 {
                     <td>

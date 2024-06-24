@@ -10,9 +10,9 @@
     <label class="form-label">Project Type</label><br />
     @Html.DropDownList("projectType", ViewBag.ProjectTypes, "Select Project Type", new { @class = "form-control", @required = true })
     <label class="form-label">StartDate</label><br /> 
-    <input type="date" name="startDate" id="startDate" min="@DateTime.Now.Date.ToString()" /><br />
+    <input type="date" name="startDate" id="startDate" min="@DateTime.Now.Date.ToString("yyyy-MM-dd")" /><br />
     <label class="form-label">End Date</label><br />
-    <input type="date" name="endDate" id="endDate" min="@DateTime.Now.Date.ToString()" /><br />
+    <input type="date" name="endDate" id="endDate" min="@DateTime.Now.Date.ToString("yyyy-MM-dd")" /><br />
     <label class="form-label">Project Manager</label>
     @Html.DropDownList("projectManager",
             new SelectList(((EmployeeModel)ViewData["ProjectManagers"]).EmployeeList, "Value", "Text"),

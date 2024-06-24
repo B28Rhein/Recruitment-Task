@@ -203,7 +203,7 @@ namespace Recrutiment_Test.Controllers
         {
             EmployeeModel employeeModel = new EmployeeModel();
             employeeModel.EmployeeList = new List<SelectListItem>();
-            
+
             var data = context.Employees.ToList();
             foreach (var item in data)
             {
@@ -249,6 +249,14 @@ namespace Recrutiment_Test.Controllers
                         Value = item.Id.ToString()
                     });
                 }
+                else if(item.Id == id)
+                {
+                    employeeModel.EmployeeList.Add(new SelectListItem
+                    {
+                        Text = item.FullName + " (self)",
+                        Value = item.Id.ToString()
+                    });
+                }
             }
 
             ViewBag.Position = new SelectList(positions);
@@ -274,6 +282,12 @@ namespace Recrutiment_Test.Controllers
             {
                 try
                 {
+                    AppUser appUser = await context.AppUsers.FirstOrDefaultAsync(p => p.EmployeeId == id);
+                    if (appUser != null)
+                    {
+                        appUser.Role = employee.Position;
+                        context.Update(appUser);
+                    }
                     context.Update(employee);
                     await context.SaveChangesAsync();
                 }
@@ -302,6 +316,14 @@ namespace Recrutiment_Test.Controllers
                     employeeModel.EmployeeList.Add(new SelectListItem
                     {
                         Text = item.FullName,
+                        Value = item.Id.ToString()
+                    });
+                }
+                else if (item.Id == id)
+                {
+                    employeeModel.EmployeeList.Add(new SelectListItem
+                    {
+                        Text = item.FullName + " (self)",
                         Value = item.Id.ToString()
                     });
                 }
@@ -366,7 +388,7 @@ namespace Recrutiment_Test.Controllers
             }
             return RedirectToAction("Index");
         }
-        [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
+        [Authorize(Roles = "Project Manager,Administrator")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)

@@ -53,47 +53,51 @@
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
-                    @(((List<string>)ViewData["ProjectTypes"])[@item.ProjectType])
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.StartDate)
-                </td>
-                <td>
-                    @(item.EndDate == null ? "Unspecified" : item.EndDate.Value)
-                </td>
-                
-                <td>
-                    @item.ProjectManagerNavigation.FullName
-                </td>
-                <td>
-                    @(item.Status ? "Active" : "Deactivated")
-                </td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@item.Id"><button class="btn-primary">Details</button></a>
-                </td>
-                @if (User.IsInRole("Project Manager") || User.IsInRole("Administrator"))
-                {
+            if(!User.IsInRole("Employee") || item.Employees.FirstOrDefault(p => User.Claims.FirstOrDefault(o => o.Value==p.Id.ToString()) != null) != null)
+            {
+                <tr>
                     <td>
-                        <a asp-action="Edit" asp-route-id="@item.Id"><button class="btn-primary">Edit</button></a>
+                        @Html.DisplayFor(modelItem => item.Id)
                     </td>
                     <td>
-                        @if (item.Status == true)
-                        {
-                            <a asp-action="Deactivate" asp-route-id="@item.Id"><button class="btn-primary">Deactivate</button></a>
-                        }
-                        else
-                        {
-                            <a asp-action="Deactivate" asp-route-id="@item.Id"><button class="btn-primary">Activate</button></a>
-                        }
+                        @(((List<string>)ViewData["ProjectTypes"])[@item.ProjectType])
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.StartDate)
+                    </td>
+                    <td>
+                        @(item.EndDate == null ? "Unspecified" : item.EndDate.Value)
+                    </td>
 
+                    <td>
+                        @item.ProjectManagerNavigation.FullName
                     </td>
-                }
-            </tr>
+                    <td>
+                        @(item.Status ? "Active" : "Deactivated")
+                    </td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.Id"><button class="btn-primary">Details</button></a>
+                    </td>
+                    @if (User.IsInRole("Project Manager") || User.IsInRole("Administrator"))
+                    {
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.Id"><button class="btn-primary">Edit</button></a>
+                        </td>
+                        <td>
+                            @if (item.Status == true)
+                            {
+                                <a asp-action="Deactivate" asp-route-id="@item.Id"><button class="btn-primary">Deactivate</button></a>
+                            }
+                            else
+                            {
+                                <a asp-action="Deactivate" asp-route-id="@item.Id"><button class="btn-primary">Activate</button></a>
+                            }
+
+                        </td>
+                    }
+                </tr>
+            }
+            
         }
     </tbody>
 </table>

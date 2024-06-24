@@ -39,7 +39,7 @@
     </tr>
     <tr>
         <th>Comment: </th>
-        <th>@(Model.Comment == null ? "No comment given" : Model.Comment)</th>
+        <th>@(Model.Comment == null ? "No comment given" : Html.Raw(Model.Comment))</th>
     </tr>
 </table>
 <div>

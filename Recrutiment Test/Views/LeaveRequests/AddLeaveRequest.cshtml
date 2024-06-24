@@ -23,9 +23,9 @@
     <label class="form-label">Absence Reason</label>
     @Html.DropDownList("absenceReason", ViewBag.AbsenceReasons, "Select Absence Reason", new { @class = "form-control", @required = true })
     <label class="form-label">StartDate</label><br /> 
-    <input type="date" name="startDate" id="startDate" min="@DateTime.Now.Date.ToString()"/><br />
+    <input type="date" name="startDate" id="startDate" min="@DateTime.Now.Date.ToString("yyyy-MM-dd")"/><br />
     <label class="form-label">End Date</label><br />
-    <input type="date" name="endDate" id="endDate" min="@DateTime.Now.Date.ToString()" /><br />
+    <input type="date" name="endDate" id="endDate" min="@DateTime.Now.Date.ToString("yyyy-MM-dd")" /><br />
     <label class="form-label">Comment</label>
     <textarea class="form-control" rows="4" cols="10" name="comment" id="comment"></textarea>
     <input type="hidden" value="0" name="Status" id="Status" /><br />

@@ -88,6 +88,9 @@
                         @if (item.Status == 0 && (User.IsInRole("Employee") || User.IsInRole("Administrator")))
                         {
                             <a asp-action="Submit" asp-route-id="@item.Id"><button class="btn-primary">Submit</button></a>
+                        }
+                        @if ((item.Status == 0 || item.Status == 3) && (User.IsInRole("Employee") || User.IsInRole("Administrator")))
+                        {
                             <a asp-action="Cancel" asp-route-id="@item.Id"><button class="btn-primary">Cancel</button></a>
                         }
                     </td>

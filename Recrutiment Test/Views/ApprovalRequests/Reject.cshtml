@@ -12,12 +12,21 @@
             document.getElementById("form1").submit();
         }
     </script>
+    <style>
+        textarea {
+            resize: none;
+            display:block;
+            margin-left:auto;
+            margin-right:auto;
+        }
+    </style>
 </head>
 <form asp-action="Reject" method="post" id="form1">
-    <div>
+    <div class ="justify-content-center">
         <input type="hidden" id="reject" name="reject" />
         <input type="hidden" name="ID" id="ID" value="@Model.Id" />
-        <h3 class="text-center">Are you sure that you want to reject request @Model.Id</h3>
+        <h3 class="text-center">Are you sure that you want to reject request @Model.Id?, please provide justification</h3>
+        <textarea class="justify-content-center" cols="150" rows="7" id="comment" name="comment" required="Justification of rejection is required" ></textarea>
         <br />
         <div>
             <div class="container">

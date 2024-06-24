@@ -9,17 +9,7 @@
     <script>
         function submition(submit) {
             document.getElementById("submitInput").value = submit
-            if (submit) {
-                if (document.getElementById("approver").value != "") { 
-                    document.getElementById("form1").submit();
-                }
-                else document.getElementById("approver").style.backgroundColor = "#FF8080"
-            }
-            else
-                document.getElementById("form1").submit();
-        }
-        function returnColor() {
-            document.getElementById("approver").style.backgroundColor = "#FFFFFF"
+            document.getElementById("form1").submit();
         }
     </script>
 </head>
@@ -27,13 +17,6 @@
     <div>
         <input type="hidden" id="submitInput" name="submitInput" />
         <input type="hidden" name="ID" id="ID" value="@Model.Id" />
-        <h5>Who do you want to ask to approve this request</h5>
-        <div>
-            @Html.DropDownList("approver",
-                     new SelectList(((EmployeeModel)ViewData["EmployeeModel"]).EmployeeList, "Value", "Text"),
-                     "Select Approver",
-                     new { @class = "form-control", @required = true, @onClick = "returnColor()"})
-        </div>
         <h3 class="text-center">Are you sure that you want to submit leave request @Model.Id</h3>
         <br />
         <div>

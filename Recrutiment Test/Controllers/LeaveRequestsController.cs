@@ -313,56 +313,55 @@ namespace Recrutiment_Test.Controllers
             {
                 return NotFound();
             }
-            EmployeeModel Approvers = new EmployeeModel();
-            Approvers.EmployeeList = new List<SelectListItem>();
-
-            var data = context.Employees.ToList();
-            foreach (var item in data)
-            {
-                if (item.Id == LeaveRequest.EmployeeNavigation.PeoplePartner || IsPM(item.Id, LeaveRequest.EmployeeNavigation.Projects.ToList()))
-                {
-                    Approvers.EmployeeList.Add(new SelectListItem
-                    {
-                        Text = item.FullName,
-                        Value = item.Id.ToString()
-                    });
-                }
-            }
-            ViewData["EmployeeModel"] = Approvers;
             return View(LeaveRequest);
         }
         [Authorize(Roles = "Employee,Administrator")]
         [HttpPost]
-        public async Task<IActionResult> Submit(int ID, bool submitInput, int approver)
+        public async Task<IActionResult> Submit(int ID, bool submitInput)
         {
             if (ID == null)
             {
                 return NotFound();
             }
 
-            var leaveRequest = await context.LeaveRequests.Include(p => p.EmployeeNavigation).FirstOrDefaultAsync(p => p.Id == ID);
+            var leaveRequest = await context.LeaveRequests.Include(p => p.EmployeeNavigation).ThenInclude(p => p.Projects).FirstOrDefaultAsync(p => p.Id == ID);
             if (leaveRequest == null)
             {
                 return NotFound();
             }
+            
             if (submitInput)
             {
+                List<int> Approvers = new List<int>();
+                var employee = leaveRequest.EmployeeNavigation;
+                foreach(var item in employee.Projects)
+                {
+                    if(item.Employees.Contains(employee))
+                    {
+                        Approvers.Add(item.ProjectManager);
+                    }
+                }
+                Approvers.Add(employee.PeoplePartner);
                 leaveRequest.Status = 3;
                 if (ModelState.IsValid)
                 {
                     try
                     {
                         context.Update(leaveRequest);
-                        ApprovalRequest approvalRequest = new ApprovalRequest()
+                        foreach (var approver in Approvers) 
                         {
-                            Approver = approver,
-                            LeaveRequest = leaveRequest.Id,
-                            Status = 0,
-                            Comment = leaveRequest.Comment,
-                        };
-                        context.Add(approvalRequest);
+                            ApprovalRequest approvalRequest = new ApprovalRequest()
+                            {
+                                Approver = approver,
+                                LeaveRequest = leaveRequest.Id,
+                                Status = 0,
+                                Comment = leaveRequest.Comment,
+                            };
+                            context.Add(approvalRequest);
+                        }
+                        
                         await context.SaveChangesAsync();
-                }
+                    }
                     catch (DbUpdateConcurrencyException)
                     {
                         if (context.LeaveRequests.Find(leaveRequest.Id) == null)
@@ -403,7 +402,8 @@ namespace Recrutiment_Test.Controllers
                 return NotFound();
             }
 
-            var LeaveRequest = await context.LeaveRequests.FindAsync(ID);
+            var LeaveRequest = await context.LeaveRequests.Include(p => p.ApprovalRequests).FirstOrDefaultAsync(p => p.Id == ID);
+            List<ApprovalRequest> approvals = LeaveRequest.ApprovalRequests.ToList();
             if (LeaveRequest == null)
             {
                 return NotFound();
@@ -411,11 +411,19 @@ namespace Recrutiment_Test.Controllers
             if (cancel)
             {
                 LeaveRequest.Status = 4;
+                for (int i = 0; i < approvals.Count; i++)
+                {
+                    approvals[i].Status = 3;
+                }
                 if (ModelState.IsValid)
                 {
                     try
                     {
                         context.Update(LeaveRequest);
+                        for (int i = 0; i < approvals.Count; i++)
+                        {
+                            context.Update(approvals[i]);
+                        }
                         await context.SaveChangesAsync();
                     }
                     catch (DbUpdateConcurrencyException)
