@@ -74,7 +74,7 @@
                     @(((List<string>)ViewData["Statuses"])[@item.Status])
                 </td>
                 <td>
-                    @if(item.Status == 0)
+                    @if(item.Status == 0 && (User.IsInRole("Employee") || User.IsInRole("Administrator")))
                     {
                         <a asp-action="Edit" asp-route-id="@item.Id"><button class="btn-primary">Edit</button></a>
                     }
@@ -83,7 +83,7 @@
                     <a asp-action="Details" asp-route-id="@item.Id"><button class="btn-primary">Details</button></a>
                 </td>
                 <td>
-                    @if(item.Status == 0)
+                    @if (item.Status == 0 && (User.IsInRole("Employee") || User.IsInRole("Administrator")))
                     {
                         <a asp-action="Submit" asp-route-id="@item.Id"><button class="btn-primary">Submit</button></a>
                         <a asp-action="Cancel" asp-route-id="@item.Id"><button class="btn-primary">Cancel</button></a>
@@ -93,7 +93,10 @@
         }
     </tbody>
 </table>
-<a asp-controller="LeaveRequests" asp-action="AddLeaveRequest"><button class="btn-primary">Add new Leave Request</button></a>
+@if (User.IsInRole("Employee") || User.IsInRole("Administrator"))
+{
+    <a asp-controller="LeaveRequests" asp-action="AddLeaveRequest"><button class="btn-primary">Add new Leave Request</button></a>
+}
 <form asp-action="Index" method="get" id="form1">
     <input type="hidden" id="Order" name="Order" />
 </form>

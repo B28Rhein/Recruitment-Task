@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Recrutiment_Test.Models;
@@ -6,6 +7,7 @@ using System.Text.Encodings.Web;
 
 namespace Recrutiment_Test.Controllers
 {
+    [Authorize]
     public class LeaveRequestsController : Controller
     {
         public static List<string> absenceReasons = new List<string>()
@@ -30,6 +32,7 @@ namespace Recrutiment_Test.Controllers
         {
             this.context = context;
         }
+        [Authorize]
         public async Task<IActionResult> Index()
         {
             ViewData["AbsenceReasons"] = absenceReasons;
@@ -37,6 +40,7 @@ namespace Recrutiment_Test.Controllers
             ViewData["SortOrder"] = "IDASC";
             return View(await context.LeaveRequests.ToListAsync());
         }
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> Index(string Order)
         {
@@ -129,6 +133,7 @@ namespace Recrutiment_Test.Controllers
             }
             return View(leaveRequests);
         }
+        [Authorize(Roles ="Employee,Administrator")]
         [HttpPost]
         public async Task<IActionResult> AddLeaveRequest(int employee, string absenceReason, DateOnly startDate, DateOnly endDate, string? Comment, int Status)
         {
@@ -182,6 +187,7 @@ namespace Recrutiment_Test.Controllers
             ViewData["EmployeeModel"] = employeeModel;
             return View(false);
         }
+        [Authorize(Roles = "Employee,Administrator")]
         public IActionResult AddLeaveRequest()
         {
             EmployeeModel employeeModel = new EmployeeModel();
@@ -204,6 +210,7 @@ namespace Recrutiment_Test.Controllers
             ViewData["EmployeeModel"] = employeeModel;
             return View(true);
         }
+        [Authorize(Roles = "Employee,Administrator")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -238,6 +245,7 @@ namespace Recrutiment_Test.Controllers
             ViewData["EmployeeModel"] = employeeModel;
             return View(LeaveRequest);
         }
+        [Authorize(Roles = "Employee,Administrator")]
         [HttpPost]
         public async Task<IActionResult> Edit(int id, int employee, string absenceReason, DateOnly startDate, DateOnly endDate, string? Comment, int Status)
         {
@@ -292,6 +300,7 @@ namespace Recrutiment_Test.Controllers
             ViewData["EmployeeModel"] = employeeModel;
             return View(leaveRequest);
         }
+        [Authorize(Roles = "Employee,Administrator")]
         public async Task<IActionResult> Submit(int? id)
         {
             if (id == null)
@@ -322,6 +331,7 @@ namespace Recrutiment_Test.Controllers
             ViewData["EmployeeModel"] = Approvers;
             return View(LeaveRequest);
         }
+        [Authorize(Roles = "Employee,Administrator")]
         [HttpPost]
         public async Task<IActionResult> Submit(int ID, bool submitInput, int approver)
         {
@@ -369,6 +379,7 @@ namespace Recrutiment_Test.Controllers
             }
             return RedirectToAction("Index");
         }
+        [Authorize(Roles = "Employee,Administrator")]
         public async Task<IActionResult> Cancel(int? id)
         {
             if (id == null)
@@ -383,6 +394,7 @@ namespace Recrutiment_Test.Controllers
             }
             return View(LeaveRequest);
         }
+        [Authorize(Roles = "Employee,Administrator")]
         [HttpPost]
         public async Task<IActionResult> Cancel(int ID, bool cancel)
         {
@@ -422,6 +434,7 @@ namespace Recrutiment_Test.Controllers
             }
             return RedirectToAction("Index");
         }
+        [Authorize]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -439,7 +452,7 @@ namespace Recrutiment_Test.Controllers
 
             return View(LeaveRequest);
         }
-        bool IsPM(int id, List<Project> projects)
+        private bool IsPM(int id, List<Project> projects)
         {
             foreach (Project project in projects)
             {

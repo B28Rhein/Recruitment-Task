@@ -44,31 +44,34 @@
     <tbody>
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
-                    @item.ApproverNavigation.Id
-                </td>
-                <td>
-                    @item.LeaveRequestNavigation.Id
-                </td>
-                <td>
-                    @(((List<string>)ViewData["Statuses"])[@item.Status])
-                </td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@item.Id"><button class="btn-primary">Details</button></a>
-                </td>
-                <td>
-                    @if(item.Status == 0)
-                    {
-                        <a asp-action="Approve" asp-route-id="@item.Id"><button class="btn-primary">Approve</button></a>
-                        <a asp-action="Reject" asp-route-id="@item.Id"><button class="btn-primary">Reject</button></a>
-                    }
-                    
-                </td>
-            </tr>
+            if (User.IsInRole("Administrator") || (User.Identity.IsAuthenticated && User.HasClaim(c => c.ValueType == "http://www.w3.org/2001/XMLSchema#string" && c.Value == item.Approver.ToString())))
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Id)
+                    </td>
+                    <td>
+                        @item.ApproverNavigation.Id
+                    </td>
+                    <td>
+                        @item.LeaveRequestNavigation.Id
+                    </td>
+                    <td>
+                        @(((List<string>)ViewData["Statuses"])[@item.Status])
+                    </td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.Id"><button class="btn-primary">Details</button></a>
+                    </td>
+                    <td>
+                        @if (item.Status == 0 && (User.IsInRole("HR Manager") || User.IsInRole("Project Manager") || User.IsInRole("Administrator")))
+                        {
+                            <a asp-action="Approve" asp-route-id="@item.Id"><button class="btn-primary">Approve</button></a>
+                            <a asp-action="Reject" asp-route-id="@item.Id"><button class="btn-primary">Reject</button></a>
+                        }
+
+                    </td>
+                </tr>
+            }
         }
     </tbody>
 </table>

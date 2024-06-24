@@ -2,5 +2,35 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
+    ViewData["Title"] = $"Logout";
 }
-For now this is empty too
+<head>
+    <script>
+        function logout(logout) {
+            document.getElementById("Logout").value = logout
+            document.getElementById("form1").submit();
+        }
+    </script>
+</head>
+<form asp-action="Logout" method="post" id="form1">
+    <div>
+        <input type="hidden" id="Logout" name="Logout" />
+        <h3 class="text-center">Are you sure that you want to Log out</h3>
+        <br />
+        <div>
+            <div class="container">
+                <div class="row">
+                    <div class="col text-center">
+                        <input type="button" name="yes" value="YES" class="btn btn-primary btn-lg" onclick="logout(true)" />
+                    </div>
+                    <div class="col text-center">
+                        <input type="button" name="no" value="NO" class="btn btn-primary btn-lg" onclick="logout(false)" />
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+</form>

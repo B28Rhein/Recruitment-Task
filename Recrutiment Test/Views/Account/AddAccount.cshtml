@@ -1,0 +1,67 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Add Account";
+}
+
+<script>
+
+    let rolesArray = @Json.Serialize(Model.ToList());
+
+    function fillUsername() { 
+        let a = document.getElementById("username");
+        let b = document.getElementById("employeeId");
+        let c = document.getElementById("role");
+        if (b.selectedIndex > 0) {
+            a.value = b.options[b.selectedIndex].text;
+            a.readOnly = true;
+            c.selectedIndex = rolesArray[b.selectedIndex-1]+1;
+            c.onclick = function () { return false; };
+            c.onkeydown = function () { return false; };
+            c.style.pointerEvents = "none";
+            console.log("oififfji")
+        }
+        else {
+            console.log("dawdasd")
+            a.value = "";
+            a.readOnly = false;
+            c.selectedIndex = 0;
+            c.readOnly = false;
+            c.onclick = function () { return true; };
+            c.onkeydown = function () { return true; };
+            c.style.pointerEvents = "all";
+        }
+    }
+</script>
+
+@model IEnumerable<int>
+<h2>Add a new Account</h2>
+<form id="AddAccountForm" asp-controller="Account" asp-action="AddAccount" method="post" style="padding:1%">
+    <label class="form-label">Username</label><br />
+    <input id="username" name="username" type="text"/><br />
+    <label class="form-label">Password</label><br />
+    <input id="text" name="password" type="text" /><br />
+    <label class="form-label">Employee</label>
+    @Html.DropDownList("employeeId",
+            new SelectList(((EmployeeModel)ViewData["EmployeeModel"]).EmployeeList, "Value", "Text"),
+            "Select Employee to assign this account to",
+            new { @class = "form-control", @onchange = "fillUsername()"})
+    <label>Role</label>
+    @Html.DropDownList("role", ViewBag.Roles, "Select Role", new { @class = "form-control", @required = true })
+    <label class="form-label">Active</label>
+    <input type="checkbox" name="Status" id="Active"/><br />
+    <div class="form-group">
+        <input type="submit" value="Add" class="btn btn-primary" />
+    </div>
+</form>
+<div style="color:red; font-size:large; font-weight:bold">@(!(bool)ViewData["NoError"] ? "An Error as occured, employee was not added" : "")</div>
+<div>
+    <a asp-action="Index"><button class="btn-primary">Back</button></a>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

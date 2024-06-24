@@ -19,7 +19,7 @@ namespace Recrutiment_Test.Models
                 {
                     return;   // DB has been seeded
                 }
-                AppUser appUser = new AppUser() { UserName = "admin", Role = 3 };
+                AppUser appUser = new AppUser() { UserName = "admin", Role = 3, Active = true };
                 appUser.PasswordHashed = AccountController.hasher.HashPassword(appUser, "admin");
                 context.AppUsers.Add(appUser);
                 context.SaveChanges();

@@ -8,6 +8,7 @@ using System.Text.Encodings.Web;
 
 namespace Recrutiment_Test.Controllers
 {
+    [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
     public class EmployeesController : Controller
     {
         public static List<string> positions = new List<string>()
@@ -30,6 +31,7 @@ namespace Recrutiment_Test.Controllers
         {
             this.context = context;
         }
+        [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
         public async Task<IActionResult> Index()
         {
             ViewData["Positions"] = positions;
@@ -37,6 +39,7 @@ namespace Recrutiment_Test.Controllers
             ViewData["SortOrder"] = "IDASC";
             return View(await context.Employees.ToListAsync());
         }
+        [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
         [HttpGet]
         public async Task<IActionResult> Index(string Order)
         {
@@ -141,6 +144,7 @@ namespace Recrutiment_Test.Controllers
             }
             return View(employees);
         }
+        [Authorize(Roles = "HR Manager,Administrator")]
         [HttpPost]
         public async Task<IActionResult> AddEmployee(string fullName, string subdivision, string position, string Status, int peoplesPartner, int oooBalance)
         {
@@ -194,6 +198,7 @@ namespace Recrutiment_Test.Controllers
             ViewData["EmployeeModel"] = employeeModel;
             return View(false);
         }
+        [Authorize(Roles = "HR Manager,Administrator")]
         public IActionResult AddEmployee()
         {
             EmployeeModel employeeModel = new EmployeeModel();
@@ -216,6 +221,7 @@ namespace Recrutiment_Test.Controllers
             ViewData["EmployeeModel"] = employeeModel;
             return View(true);
         }
+        [Authorize(Roles = "HR Manager,Administrator")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -250,6 +256,7 @@ namespace Recrutiment_Test.Controllers
             ViewData["EmployeeModel"] = employeeModel;
             return View(Employee);
         }
+        [Authorize(Roles = "HR Manager,Administrator")]
         [HttpPost]
         public async Task<IActionResult> Edit(int id, string fullName, string subdivision, string position, bool Status, int peoplesPartner, int oooBalance)
         {
@@ -304,6 +311,7 @@ namespace Recrutiment_Test.Controllers
             ViewData["EmployeeModel"] = employeeModel;
             return View(employee);
         }
+        [Authorize(Roles = "HR Manager,Administrator")]
         public async Task<IActionResult> Deactivate(int? id)
         {
             if (id == null)
@@ -318,6 +326,7 @@ namespace Recrutiment_Test.Controllers
             }
             return View(Employee);
         }
+        [Authorize(Roles = "HR Manager,Administrator")]
         [HttpPost]
         public async Task<IActionResult> Deactivate(int ID, bool deactivate)
         {
@@ -357,6 +366,7 @@ namespace Recrutiment_Test.Controllers
             }
             return RedirectToAction("Index");
         }
+        [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)
@@ -374,6 +384,7 @@ namespace Recrutiment_Test.Controllers
 
             return View(Employee);
         }
+        [Authorize(Roles = "Project Manager,Administrator")]
         public async Task<IActionResult> Assign(int? id)
         {
             if (id == null)
@@ -404,6 +415,7 @@ namespace Recrutiment_Test.Controllers
             ViewData["ProjectModel"] = Projects;
             return View(employee);
         }
+        [Authorize(Roles = "Project Manager,Administrator")]
         [HttpPost]
         public async Task<IActionResult> Assign(int ID, bool assign, int project)
         {

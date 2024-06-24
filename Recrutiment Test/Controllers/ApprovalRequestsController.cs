@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Recrutiment_Test.Models;
@@ -6,6 +7,7 @@ using System.Text.Encodings.Web;
 
 namespace Recrutiment_Test.Controllers
 {
+    [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
     public class ApprovalRequestsController : Controller
     {
         public static List<string> statuses = new List<string>()
@@ -21,12 +23,14 @@ namespace Recrutiment_Test.Controllers
         {
             this.context = context;
         }
+        [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
         public async Task<IActionResult> Index()
         {
             ViewData["Statuses"] = statuses;
             ViewData["SortOrder"] = "IDASC";
             return View(await context.ApprovalRequests.ToListAsync());
         }
+        [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
         [HttpGet]
         public async Task<IActionResult> Index(string Order)
         {
@@ -93,6 +97,7 @@ namespace Recrutiment_Test.Controllers
             }
             return View(approvalRequests);
         }
+        [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
         public async Task<IActionResult> Approve(int? id)
         {
             if (id == null)
@@ -107,6 +112,7 @@ namespace Recrutiment_Test.Controllers
             }
             return View(ApprovalRequest);
         }
+        [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
         [HttpPost]
         public async Task<IActionResult> Approve(int ID, bool approve)
         {
@@ -149,6 +155,7 @@ namespace Recrutiment_Test.Controllers
             }
             return RedirectToAction("Index");
         }
+        [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
         public async Task<IActionResult> Reject(int? id)
         {
             if (id == null)
@@ -163,6 +170,7 @@ namespace Recrutiment_Test.Controllers
             }
             return View(ApprovalRequest);
         }
+        [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
         [HttpPost]
         public async Task<IActionResult> Reject(int ID, bool reject)
         {
@@ -205,6 +213,7 @@ namespace Recrutiment_Test.Controllers
             }
             return RedirectToAction("Index");
         }
+        [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)

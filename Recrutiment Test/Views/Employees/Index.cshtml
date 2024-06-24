@@ -80,29 +80,38 @@
                     @Html.DisplayFor(modelItem => item.OutOfOfficeBalance) days
                 </td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@item.Id"><button class="btn-primary">Edit</button></a>
-                </td>
-                <td>
                     <a asp-action="Details" asp-route-id="@item.Id"><button class="btn-primary">Details</button></a>
                 </td>
-                <td>
-                    @if(item.Status == true)
-                    {
-                        <a asp-action="Deactivate" asp-route-id="@item.Id"><button class="btn-primary">Deactivate</button></a>
-                    }
-                    else
-                    {
-                        <a asp-action="Deactivate" asp-route-id="@item.Id"><button class="btn-primary">Activate</button></a>
-                    }       
-                </td>
-                <td>
-                    <a asp-action="Assign" asp-route-id="@item.Id"><button class="btn-primary">Assign to Project</button></a>
-                </td>
+                @if(User.IsInRole("HR Manager") || User.IsInRole("Administrator"))
+                {
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id"><button class="btn-primary">Edit</button></a>
+                    </td>
+                    <td>
+                        @if (item.Status == true)
+                        {
+                            <a asp-action="Deactivate" asp-route-id="@item.Id"><button class="btn-primary">Deactivate</button></a>
+                        }
+                        else
+                        {
+                            <a asp-action="Deactivate" asp-route-id="@item.Id"><button class="btn-primary">Activate</button></a>
+                        }
+                    </td>
+                }
+                @if(User.IsInRole("Project Manager") || User.IsInRole("Administrator"))
+                {
+                    <td>
+                        <a asp-action="Assign" asp-route-id="@item.Id"><button class="btn-primary">Assign to Project</button></a>
+                    </td>
+                }
             </tr>
         }
     </tbody>
 </table>
-<a asp-controller="Employees" asp-action="AddEmployee"><button class="btn-primary">Add new Employee</button></a>
+@if (User.IsInRole("HR Manager") || User.IsInRole("Administrator"))
+{
+    <a asp-controller="Employees" asp-action="AddEmployee"><button class="btn-primary">Add new Employee</button></a>
+}
 <form asp-action="Index" method="get" id="form1">
     <input type="hidden" id="Order" name="Order" />
 </form>

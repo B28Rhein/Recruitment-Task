@@ -15,5 +15,7 @@ public partial class AppUser
 
     public int Role { get; set; }
 
+    public bool Active { get; set; }
+
     public virtual Employee? Employee { get; set; }
 }

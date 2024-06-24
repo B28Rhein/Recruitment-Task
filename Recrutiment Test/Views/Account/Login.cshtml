@@ -4,7 +4,9 @@
 @{
 }
 <form id="LoginForm" asp-controller="Account" asp-action="Login" method="post">
-    <input type="text" name="username" id="username" class="form-text"/>
-    <input type="password" name="password" id="password" class="form-text"/>
-    <input type="submit" class="btn btn-primary"/>
+    <label class="form-label">UserName</label><br />
+    <input type="text" name="username" id="username" class="form-text"/><br />
+    <label class="form-label">Password</label><br />
+    <input type="password" name="password" id="password" class="form-text"/><br /><br />
+    <input type="submit" value="Login" class="btn btn-primary"/>
 </form>

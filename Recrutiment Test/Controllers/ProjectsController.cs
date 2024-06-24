@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Recrutiment_Test.Models;
@@ -6,6 +7,7 @@ using System.Text.Encodings.Web;
 
 namespace Recrutiment_Test.Controllers
 {
+    [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
     public class ProjectsController : Controller
     {
         public static List<string> ProjectTypes = new List<string>()
@@ -22,12 +24,14 @@ namespace Recrutiment_Test.Controllers
         {
             this.context = context;
         }
+        [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
         public async Task<IActionResult> Index()
         {
             ViewData["ProjectType"] = ProjectTypes;
             ViewData["SortOrder"] = "IDASC";
             return View(await context.Projects.ToListAsync());
         }
+        [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
         [HttpGet]
         public async Task<IActionResult> Index(string Order)
         {
@@ -132,6 +136,7 @@ namespace Recrutiment_Test.Controllers
             }
             return View(project);
         }
+        [Authorize(Roles = "Project Manager,Administrator")]
         [HttpPost]
         public async Task<IActionResult> AddProject(string projectType, DateOnly startDate, DateOnly? endDate, int projectManager, string? Comment, string Status)
         {
@@ -184,6 +189,7 @@ namespace Recrutiment_Test.Controllers
             ViewData["ProjectManagers"] = projectManagers;
             return View(false);
         }
+        [Authorize(Roles = "Project Manager,Administrator")]
         public IActionResult AddProject()
         {
             EmployeeModel projectManagers = new EmployeeModel();
@@ -205,6 +211,7 @@ namespace Recrutiment_Test.Controllers
             ViewData["ProjectManagers"] = projectManagers;
             return View(true);
         }
+        [Authorize(Roles = "Project Manager,Administrator")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -238,6 +245,7 @@ namespace Recrutiment_Test.Controllers
             ViewData["ProjectManagers"] = projectManagers;
             return View(Project);
         }
+        [Authorize(Roles = "Project Manager,Administrator")]
         [HttpPost]
         public async Task<IActionResult> Edit(int id, string projectType, DateOnly startDate, DateOnly? endDate, int projectManager, string? Comment, bool Status)
         {
@@ -291,6 +299,7 @@ namespace Recrutiment_Test.Controllers
             ViewData["ProjectManagers"] = projectManagers;
             return View(project);
         }
+        [Authorize(Roles = "Project Manager,Administrator")]
         public async Task<IActionResult> Deactivate(int? id)
         {
             if (id == null)
@@ -305,6 +314,7 @@ namespace Recrutiment_Test.Controllers
             }
             return View(Project);
         }
+        [Authorize(Roles = "Project Manager,Administrator")]
         [HttpPost]
         public async Task<IActionResult> Deactivate(int ID, bool deactivate)
         {
@@ -344,6 +354,7 @@ namespace Recrutiment_Test.Controllers
             }
             return RedirectToAction("Index");
         }
+        [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null)

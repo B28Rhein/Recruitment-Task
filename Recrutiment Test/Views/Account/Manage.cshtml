@@ -1,0 +1,90 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "Account Management";
+}
+@model IEnumerable<Recrutiment_Test.Models.AppUser>
+
+<h2>Account List</h2>
+<table class="table">
+    <thead>
+        <tr>
+            
+            <th>
+                Account ID
+            </th>
+            <th>
+                Username
+            </th>
+            <th>
+                Employee
+            </th>
+            <th>
+                Role
+            </th>
+            <th>
+                Status
+            </th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Id)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.UserName)
+                </td>
+                @if(item.Employee == null)
+                {
+                    <td>
+                        Not Assigned
+                    </td>
+                }
+                else
+                {
+                    <td>
+                        @item.Employee.FullName (@item.Employee.Id)
+                    </td>
+                }
+                <td>
+                    @(((List<string>)ViewData["Roles"])[@item.Role])
+                </td>
+                <td>
+                    @(item.Active ? "Active" : "Deactivated")
+                </td>
+                @if(User.IsInRole("Administrator"))
+                {
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id"><button class="btn-primary">Edit</button></a>
+                    </td>
+                    <td>
+                        @if (item.Active == true)
+                        {
+                            <a asp-action="Deactivate" asp-route-id="@item.Id"><button class="btn-primary">Deactivate</button></a>
+                        }
+                        else
+                        {
+                            <a asp-action="Deactivate" asp-route-id="@item.Id"><button class="btn-primary">Activate</button></a>
+                        }
+                    </td>
+                }
+            </tr>
+        }
+    </tbody>
+</table>
+@if (User.IsInRole("Administrator"))
+{
+    <a asp-controller="Account" asp-action="AddAccount"><button class="btn-primary">Add new Account</button></a>
+}
+<form asp-action="Index" method="get" id="form1">
+    <input type="hidden" id="Order" name="Order" />
+</form>
+
+

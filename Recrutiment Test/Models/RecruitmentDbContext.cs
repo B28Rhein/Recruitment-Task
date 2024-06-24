@@ -34,7 +34,7 @@ public partial class RecruitmentDbContext : DbContext
         modelBuilder.Entity<AppUser>(entity =>
         {
             entity.Property(e => e.PasswordHashed)
-                .HasMaxLength(44)
+                .HasMaxLength(84)
                 .IsFixedLength();
             entity.Property(e => e.UserName).HasMaxLength(50);
 
