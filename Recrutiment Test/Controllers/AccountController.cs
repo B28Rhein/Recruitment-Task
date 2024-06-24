@@ -148,6 +148,7 @@ namespace Recrutiment_Test.Controllers
             employeeModel.EmployeeList = new List<SelectListItem>();
 
             var data = context.Employees.ToList();
+            List<Employee> itemsToRemove = new List<Employee>();
             foreach (var item in data)
             {
                 if (accounts.FirstOrDefault(p => p.EmployeeId == item.Id) == null)
@@ -160,7 +161,7 @@ namespace Recrutiment_Test.Controllers
                 }
                 else
                 {
-                    data.Remove(item);
+                    itemsToRemove.Add(item);
                 }
             }
             ViewBag.Roles = new SelectList(Roles);
@@ -169,7 +170,10 @@ namespace Recrutiment_Test.Controllers
             List<int> roleIds = new List<int>();
             foreach (var item in data)
             {
-                roleIds.Add(item.Position);
+                if (!itemsToRemove.Contains(item))
+                {
+                    roleIds.Add(item.Position);
+                }
             }
             return View(roleIds);
         }
@@ -182,6 +186,7 @@ namespace Recrutiment_Test.Controllers
             employeeModel.EmployeeList = new List<SelectListItem>();
 
             var data = context.Employees.ToList();
+            List<Employee> itemsToRemove = new List<Employee>();
             foreach (var item in data)
             {
                 if (accounts.FirstOrDefault(p => p.EmployeeId == item.Id) == null)
@@ -194,7 +199,7 @@ namespace Recrutiment_Test.Controllers
                 }
                 else
                 {
-                    data.Remove(item);
+                    itemsToRemove.Add(item);
                 }
             }
             ViewBag.Roles = new SelectList(Roles);
@@ -203,9 +208,53 @@ namespace Recrutiment_Test.Controllers
             List<int> roleIds = new List<int>();
             foreach (var item in data)
             {
-                roleIds.Add(item.Position);
+                if(!itemsToRemove.Contains(item))
+                {
+                    roleIds.Add(item.Position);
+                }
             }
             return View(roleIds);
+        }
+        public async Task<IActionResult> ChangePassword(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+            var account = await context.AppUsers.FindAsync(id);
+            if (account == null)
+            {
+                return NotFound();
+            }
+            return View(account);
+        }
+        [HttpPost]
+        [Authorize(Roles ="Administrator")]
+        public async Task<IActionResult> ChangePassword(int Id, string newPassword)
+        {
+            var account = await context.AppUsers.FindAsync(Id);
+            if (account == null)
+            {
+                return NotFound();
+            }
+            account.PasswordHashed = hasher.HashPassword(account, newPassword);
+            try
+            {
+                context.Update(account);
+                await context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (context.Employees.Find(account.Id) == null)
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return RedirectToAction("Manage");
         }
     }
 }
