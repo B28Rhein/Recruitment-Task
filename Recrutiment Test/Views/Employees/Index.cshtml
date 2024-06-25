@@ -133,61 +133,64 @@
         <tbody>
             @foreach (var item in Model)
             {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Id)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.FullName)
-                    </td>
-                    <td>
-                        @(((List<string>)ViewData["Subdivisions"])[@item.Subdivision])
-                    </td>
-                    <td>
-                        @(((List<string>)ViewData["Positions"])[@item.Position])
-                    </td>
-                    <td>
-                        @(item.Status ? "Active" : "Deactivated")
-                    </td>
-                    <td>
-                        @item.PeoplePartnerNavigation.FullName
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.OutOfOfficeBalance)
-                    </td>
-                    @if (User.IsInRole("Project Manager") || User.IsInRole("Administrator"))
-                    {
+                @if(item.FullName != "SELF")
+                {
+                    <tr>
                         <td>
-                            <a asp-action="Details" asp-route-id="@item.Id"><button class="btn-primary">Details</button></a>
-                        </td>
-                    }
-                    @if (User.IsInRole("HR Manager") || User.IsInRole("Administrator"))
-                    {
-                        <td>
-                            <a asp-action="Edit" asp-route-id="@item.Id"><button class="btn-primary">Edit</button></a>
+                            @Html.DisplayFor(modelItem => item.Id)
                         </td>
                         <td>
-                            @if (item.Status == true)
-                            {
-                                <a asp-action="Deactivate" asp-route-id="@item.Id"><button class="btn-primary">Deactivate</button></a>
-                            }
-                            else
-                            {
-                                <a asp-action="Deactivate" asp-route-id="@item.Id"><button class="btn-primary">Activate</button></a>
-                            }
+                            @Html.DisplayFor(modelItem => item.FullName)
                         </td>
-                    }
-                    @if ((User.IsInRole("Project Manager") || User.IsInRole("Administrator") && item.Position == 2))
-                    {
                         <td>
-                            <a asp-action="Assign" asp-route-id="@item.Id"><button class="btn-primary">Assign to Project</button></a>
+                            @(((List<string>)ViewData["Subdivisions"])[@item.Subdivision])
                         </td>
-                    }
-                    else
-                    {
-                        <td></td>
-                    }
-                </tr>
+                        <td>
+                            @(((List<string>)ViewData["Positions"])[@item.Position])
+                        </td>
+                        <td>
+                            @(item.Status ? "Active" : "Deactivated")
+                        </td>
+                        <td>
+                            @item.PeoplePartnerNavigation.FullName
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.OutOfOfficeBalance)
+                        </td>
+                        @if (User.IsInRole("Project Manager") || User.IsInRole("Administrator"))
+                        {
+                            <td>
+                                <a asp-action="Details" asp-route-id="@item.Id"><button class="btn-primary">Details</button></a>
+                            </td>
+                        }
+                        @if (User.IsInRole("HR Manager") || User.IsInRole("Administrator"))
+                        {
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.Id"><button class="btn-primary">Edit</button></a>
+                            </td>
+                            <td>
+                                @if (item.Status == true)
+                                {
+                                    <a asp-action="Deactivate" asp-route-id="@item.Id"><button class="btn-primary">Deactivate</button></a>
+                                }
+                                else
+                                {
+                                    <a asp-action="Deactivate" asp-route-id="@item.Id"><button class="btn-primary">Activate</button></a>
+                                }
+                            </td>
+                        }
+                        @if ((User.IsInRole("Project Manager") || User.IsInRole("Administrator") && item.Position == 2))
+                        {
+                            <td>
+                                <a asp-action="Assign" asp-route-id="@item.Id"><button class="btn-primary">Assign to Project</button></a>
+                            </td>
+                        }
+                        else
+                        {
+                            <td></td>
+                        }
+                    </tr>
+                }
             }
         </tbody>
     </table>

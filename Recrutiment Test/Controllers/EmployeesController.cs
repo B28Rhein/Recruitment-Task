@@ -79,6 +79,7 @@ namespace Recrutiment_Test.Controllers
         [HttpPost]
         public async Task<IActionResult> AddEmployee(string fullName, string subdivision, string position, string Status, int peoplesPartner, int oooBalance)
         {
+            bool isValid = true;
             Employee employee = new Employee()
             {
                 FullName = fullName,
@@ -88,136 +89,21 @@ namespace Recrutiment_Test.Controllers
                 PeoplePartner = peoplesPartner,
                 OutOfOfficeBalance = oooBalance
             };
-            if (ModelState.IsValid)
+            Employee self = await context.Employees.FirstOrDefaultAsync(p => p.FullName == "SELF");
+
+            if (peoplesPartner == self.Id && employee.Position != 0)
+            {
+                isValid = false;
+            }
+            if (ModelState.IsValid && isValid)
             {
                 try
                 {
                     context.Add(employee);
                     await context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (context.Employees.Find(employee.Id) == null)
+                    if (employee.PeoplePartner == self.Id)
                     {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction("Index");
-            }
-
-            EmployeeModel employeeModel = new EmployeeModel();
-            employeeModel.EmployeeList = new List<SelectListItem>();
-
-            var data = context.Employees.ToList();
-            foreach (var item in data)
-            {
-                if (item.Position == 0)
-                {
-                    employeeModel.EmployeeList.Add(new SelectListItem
-                    {
-                        Text = item.FullName,
-                        Value = item.Id.ToString()
-                    });
-                }
-            }
-            ViewBag.Position = new SelectList(positions);
-            ViewBag.Subdivision = new SelectList(subdivisions);
-            ViewData["EmployeeModel"] = employeeModel;
-            return View(false);
-        }
-        [Authorize(Roles = "HR Manager,Administrator")]
-        public IActionResult AddEmployee()
-        {
-            EmployeeModel employeeModel = new EmployeeModel();
-            employeeModel.EmployeeList = new List<SelectListItem>();
-
-            var data = context.Employees.ToList();
-            foreach (var item in data)
-            {
-                if(item.Position == 0)
-                {
-                    employeeModel.EmployeeList.Add(new SelectListItem
-                    {
-                        Text = item.FullName,
-                        Value = item.Id.ToString()
-                    });
-                }
-            }
-            ViewBag.Position = new SelectList(positions);
-            ViewBag.Subdivision = new SelectList(subdivisions);
-            ViewData["EmployeeModel"] = employeeModel;
-            return View(true);
-        }
-        [Authorize(Roles = "HR Manager,Administrator")]
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var Employee = await context.Employees.FindAsync(id);
-            if (Employee == null)
-            {
-                return NotFound();
-            }
-
-            EmployeeModel employeeModel = new EmployeeModel();
-            employeeModel.EmployeeList = new List<SelectListItem>();
-
-            var data = context.Employees.ToList();
-            foreach (var item in data)
-            {
-                if (item.Position == 0 && item.Id != id)
-                {
-                    employeeModel.EmployeeList.Add(new SelectListItem
-                    {
-                        Text = item.FullName,
-                        Value = item.Id.ToString()
-                    });
-                }
-                else if(item.Id == id)
-                {
-                    employeeModel.EmployeeList.Add(new SelectListItem
-                    {
-                        Text = item.FullName + " (self)",
-                        Value = item.Id.ToString()
-                    });
-                }
-            }
-
-            ViewBag.Position = new SelectList(positions);
-            ViewBag.Subdivision = new SelectList(subdivisions);
-            ViewData["EmployeeModel"] = employeeModel;
-            return View(Employee);
-        }
-        [Authorize(Roles = "HR Manager,Administrator")]
-        [HttpPost]
-        public async Task<IActionResult> Edit(int id, string fullName, string subdivision, string position, bool Status, int peoplesPartner, int oooBalance)
-        {
-            Employee employee = new Employee()
-            {
-                Id = id,
-                FullName = fullName,
-                Subdivision = subdivisions.IndexOf(subdivision),
-                Position = positions.IndexOf(position),
-                Status = Status,
-                PeoplePartner = peoplesPartner,
-                OutOfOfficeBalance = oooBalance
-            };
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    AppUser appUser = await context.AppUsers.FirstOrDefaultAsync(p => p.EmployeeId == id);
-                    if (appUser != null)
-                    {
-                        appUser.Role = employee.Position;
-                        context.Update(appUser);
+                        employee.PeoplePartner = employee.Id;
                     }
                     context.Update(employee);
                     await context.SaveChangesAsync();
@@ -242,7 +128,7 @@ namespace Recrutiment_Test.Controllers
             var data = context.Employees.ToList();
             foreach (var item in data)
             {
-                if (item.Position == 0)
+                if (item.Position == 0 && item.Id != self.Id)
                 {
                     employeeModel.EmployeeList.Add(new SelectListItem
                     {
@@ -250,11 +136,164 @@ namespace Recrutiment_Test.Controllers
                         Value = item.Id.ToString()
                     });
                 }
-                else if (item.Id == id)
+                else if (item.Id == self.Id)
                 {
                     employeeModel.EmployeeList.Add(new SelectListItem
                     {
-                        Text = item.FullName + " (self)",
+                        Text = item.FullName + " (only for HR Managers)",
+                        Value = item.Id.ToString()
+                    });
+                }
+            }
+            ViewBag.Position = new SelectList(positions);
+            ViewBag.Subdivision = new SelectList(subdivisions);
+            ViewData["EmployeeModel"] = employeeModel;
+            return View(false);
+        }
+        [Authorize(Roles = "HR Manager,Administrator")]
+        public async Task<IActionResult> AddEmployee()
+        {
+            EmployeeModel employeeModel = new EmployeeModel();
+            employeeModel.EmployeeList = new List<SelectListItem>();
+            Employee self = await context.Employees.FirstOrDefaultAsync(p => p.FullName == "SELF");
+            var data = context.Employees.ToList();
+            foreach (var item in data)
+            {
+                if(item.Position == 0 && item.Id != self.Id)
+                {
+                    employeeModel.EmployeeList.Add(new SelectListItem
+                    {
+                        Text = item.FullName,
+                        Value = item.Id.ToString()
+                    });
+                }
+                else if (item.Id == self.Id)
+                {
+                    employeeModel.EmployeeList.Add(new SelectListItem
+                    {
+                        Text = item.FullName + " (only for HR Managers)",
+                        Value = item.Id.ToString()
+                    });
+                }
+            }
+            ViewBag.Position = new SelectList(positions);
+            ViewBag.Subdivision = new SelectList(subdivisions);
+            ViewData["EmployeeModel"] = employeeModel;
+            return View(true);
+        }
+        [Authorize(Roles = "HR Manager,Administrator")]
+        public async Task<IActionResult> Edit(int? id)
+        {
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            var Employee = await context.Employees.FindAsync(id);
+            if (Employee == null)
+            {
+                return NotFound();
+            }
+            Employee self = await context.Employees.FirstOrDefaultAsync(p => p.FullName == "SELF");
+            EmployeeModel employeeModel = new EmployeeModel();
+            employeeModel.EmployeeList = new List<SelectListItem>();
+
+            var data = context.Employees.ToList();
+            foreach (var item in data)
+            {
+                if (item.Position == 0 && item.Id != id && item.Id != self.Id)
+                {
+                    employeeModel.EmployeeList.Add(new SelectListItem
+                    {
+                        Text = item.FullName,
+                        Value = item.Id.ToString()
+                    });
+                }
+                else if (item.Id == self.Id)
+                {
+                    employeeModel.EmployeeList.Add(new SelectListItem
+                    {
+                        Text = item.FullName + " (only for HR Managers)",
+                        Value = item.Id.ToString()
+                    });
+                }
+            }
+
+            ViewBag.Position = new SelectList(positions);
+            ViewBag.Subdivision = new SelectList(subdivisions);
+            ViewData["EmployeeModel"] = employeeModel;
+            return View(Employee);
+        }
+        [Authorize(Roles = "HR Manager,Administrator")]
+        [HttpPost]
+        public async Task<IActionResult> Edit(int id, string fullName, string subdivision, string position, bool Status, int peoplesPartner, int oooBalance)
+        {
+            bool isValid = true;
+            Employee employee = new Employee()
+            {
+                Id = id,
+                FullName = fullName,
+                Subdivision = subdivisions.IndexOf(subdivision),
+                Position = positions.IndexOf(position),
+                Status = Status,
+                PeoplePartner = peoplesPartner,
+                OutOfOfficeBalance = oooBalance
+            };
+            Employee self = await context.Employees.FirstOrDefaultAsync(p => p.FullName == "SELF");
+            if (peoplesPartner == self.Id && employee.Position != 0)
+            {
+                isValid = false;
+            }
+            if (ModelState.IsValid && isValid)
+            {
+                try
+                {
+                    AppUser appUser = await context.AppUsers.FirstOrDefaultAsync(p => p.EmployeeId == id);
+                    if (appUser != null)
+                    {
+                        appUser.Role = employee.Position;
+                        context.Update(appUser);
+                    }
+                    if(employee.PeoplePartner == self.Id)
+                    {
+                        employee.PeoplePartner = employee.Id;
+                    }
+                    context.Update(employee);
+                    await context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (context.Employees.Find(employee.Id) == null)
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction("Index");
+            }
+
+            EmployeeModel employeeModel = new EmployeeModel();
+            employeeModel.EmployeeList = new List<SelectListItem>();
+
+            var data = context.Employees.ToList();
+            foreach (var item in data)
+            {
+                if (item.Position == 0 && item.Id != self.Id)
+                {
+                    employeeModel.EmployeeList.Add(new SelectListItem
+                    {
+                        Text = item.FullName,
+                        Value = item.Id.ToString()
+                    });
+                }
+                else if (item.Id == self.Id)
+                {
+                    employeeModel.EmployeeList.Add(new SelectListItem
+                    {
+                        Text = item.FullName + " (only for HR Managers)",
                         Value = item.Id.ToString()
                     });
                 }
