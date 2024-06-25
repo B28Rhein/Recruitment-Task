@@ -13,10 +13,18 @@ html {
 }
 
 html {
-  position: relative;
-  min-height: 100%;
+    position: relative;
+    min-height: 100%;
+    
 }
 
 body {
-  margin-bottom: 60px;
+    margin-bottom: 60px;
+    background-color: #FEFFFB
+}
+header {
+    background-color: #FEFFFB
+}
+nav {
+    background-color: #FEFFFB
 }

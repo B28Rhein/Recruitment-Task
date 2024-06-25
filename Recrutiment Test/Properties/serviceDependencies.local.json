@@ -2,12 +2,6 @@
   "dependencies": {
     "secrets1": {
       "type": "secrets.user"
-    },
-    "mssql1": {
-      "serviceConnectorResourceId": "",
-      "secretStore": "LocalSecretsFile",
-      "type": "mssql.onprem",
-      "connectionId": "ConnectionStrings:Data_Source=(localdb):MSSQLLocalDB;Initial_Catalog=master;Integrated_Security=True;Connect_Timeout=30;Encrypt=False;Trust_Server_Certificate=False;Application_Intent=ReadWrite;Multi_Subnet_Failover=False"
     }
   }
 }
