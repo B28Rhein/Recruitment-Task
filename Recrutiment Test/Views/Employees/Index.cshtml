@@ -3,120 +3,199 @@
 *@
 @{
     ViewData["Title"] = "Employees";
-    string SortOrder = (string)ViewData["SortOrder"];
 }
 @model IEnumerable<Recrutiment_Test.Models.Employee>
 
-<head>
-    <script>
-        function SetSort(SortOrder) {
-            document.getElementById("Order").value = SortOrder;
-            document.getElementById("form1").submit();
-        }
-    </script>
-</head>
 
-<h2>Employees List</h2>
-<table class="table">
-    <thead>
-        <tr>
-            
-            <th onclick="SetSort(@(SortOrder == "IDASC" ? "\"IDDESC\"" : "\"IDASC\""))">
-                @Html.DisplayNameFor(model => model.Id)
-                @(SortOrder == "IDASC" ? "↓" : "↑")
-            </th>
-            <th onclick="SetSort(@(SortOrder == "NAMEASC" ? "\"NAMEDESC\"" : "\"NAMEASC\""))">
-                @Html.DisplayNameFor(model => model.FullName)
-                @(SortOrder == "NAMEASC" ? "↓" : "↑")
-            </th>
-            <th onclick="SetSort(@(SortOrder == "SDASC" ? "\"SDDESC\"" : "\"SDASC\""))">
-                @Html.DisplayNameFor(model => model.Subdivision)
-                @(SortOrder == "SDASC" ? "↓" : "↑")
-            </th>
-            <th onclick="SetSort(@(SortOrder == "POSASC" ? "\"POSDESC\"" : "\"POSASC\""))">
-                @Html.DisplayNameFor(model => model.Position)
-                @(SortOrder == "POSASC" ? "↓" : "↑")
-            </th>
-            <th onclick="SetSort(@(SortOrder == "STSASC" ? "\"STSDESC\"" : "\"STSASC\""))">
-                @Html.DisplayNameFor(model => model.Status)
-                @(SortOrder == "STSASC" ? "↓" : "↑")
-            </th>
-            <th onclick="SetSort(@(SortOrder == "PPASC" ? "\"PPDESC\"" : "\"PPASC\""))">
-                @Html.DisplayNameFor(model => model.PeoplePartner)
-                @(SortOrder == "PPASC" ? "↓" : "↑")
-            </th>
-            <th onclick="SetSort(@(SortOrder == "OOOBASC" ? "\"OOOBDESC\"" : "\"OOOBASC\""))">
-                @Html.DisplayNameFor(model => model.OutOfOfficeBalance)
-                @(SortOrder == "OOOBASC" ? "↓" : "↑")
-            </th>
-            <th></th>
-            <th></th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Id)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.FullName)
-                </td>
-                <td>
-                    @(((List<string>)ViewData["Subdivisions"])[@item.Subdivision])
-                </td>
-                <td>
-                    @(((List<string>)ViewData["Positions"])[@item.Position])
-                </td>
-                <td>
-                    @(item.Status ? "Active" : "Deactivated")
-                </td>
-                <td>
-                    @item.PeoplePartnerNavigation.FullName
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.OutOfOfficeBalance) days
-                </td>
-                @if (User.IsInRole("Project Manager") || User.IsInRole("Administrator"))
-                {
-                    <td>
-                        <a asp-action="Details" asp-route-id="@item.Id"><button class="btn-primary">Details</button></a>
-                    </td>
-                }
-                @if(User.IsInRole("HR Manager") || User.IsInRole("Administrator"))
-                {
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.Id"><button class="btn-primary">Edit</button></a>
-                    </td>
-                    <td>
-                        @if (item.Status == true)
-                        {
-                            <a asp-action="Deactivate" asp-route-id="@item.Id"><button class="btn-primary">Deactivate</button></a>
-                        }
-                        else
-                        {
-                            <a asp-action="Deactivate" asp-route-id="@item.Id"><button class="btn-primary">Activate</button></a>
-                        }
-                    </td>
-                }
-                @if((User.IsInRole("Project Manager") || User.IsInRole("Administrator") && item.Position == 2))
-                {
-                    <td>
-                        <a asp-action="Assign" asp-route-id="@item.Id"><button class="btn-primary">Assign to Project</button></a>
-                    </td>
-                }
-            </tr>
+<head>
+    <script src="~/js/site.js"></script>
+    <style>
+        th {
+            cursor: pointer
         }
-    </tbody>
-</table>
-@if (User.IsInRole("HR Manager") || User.IsInRole("Administrator"))
-{
-    <a asp-controller="Employees" asp-action="AddEmployee"><button class="btn-primary">Add new Employee</button></a>
-}
-<form asp-action="Index" method="get" id="form1">
-    <input type="hidden" id="Order" name="Order" />
-</form>
+    </style>
+</head>
+<body onload="Addsorting()">
+    <h2>Employees List</h2>
+    <form asp-action="Index" method="get">
+        <div class="bg-light text-center">
+            <div class="fw-bold h5">
+                Filters<input class="h6 btn-secondary" type="button" value="\/" id="hideShowButton" onclick="hideShowFilters()" />
+            </div>
+
+            <div class="container" id="filters" hidden="true">
+                <div class="row">
+                    <div class="col">
+                        <label class="form-label">ID</label><br />
+                        <div class="row h4">
+                            <div class="col">
+                                <input type="number" id="idRange1" name="idRange1" min="0" class="form-control" />
+                            </div>
+                            -
+                            <div class="col">
+                                <input type="number" id="idRange2" name="idRange2" min="0" class="form-control" />
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col">
+                        <label class="form-label">Status</label><br />
+                        <select class="form-control" id="status" name="status">
+                            <option>Select status</option>
+                            <option value="false">Inactive</option>
+                            <option value="true">Active</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label>Subdivision</label>
+                        @Html.DropDownList("subdivision", ViewBag.Subdivision, "Select Subdivision", new { @class = "form-control" })
+                    </div>
+                    <div class="col">
+                        <label>People Partner</label>
+                        @Html.DropDownList("peoplesPartner",
+                                 new SelectList(((EmployeeModel)ViewData["EmployeeModel"]).EmployeeList, "Value", "Text"),
+                                 "Select Peoples Partner",
+                                 new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label class="form-label">Position</label>
+                        @Html.DropDownList("position", ViewBag.Position, "Select position", new { @class = "form-control" })
+                    </div>
+                    <div class="col">
+                        <label class="form-label">Out-of-Office Balance</label><br />
+                        <div class="row h4">
+                            <div class="col">
+                                <input type="number" id="ooobRange1" name="ooobRange1" class="form-control" />
+                            </div>
+                            -
+                            <div class="col">
+                                <input type="number" id="ooobRange2" name="ooobRange2" class="form-control" />
+                            </div><br /><br />
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col">
+                        <div class="row">
+                            <div class="col">
+                                <input type="text" id="search" name="search" placeholder="Search by Name" class="form-control" />
+                            </div>
+                            <div class="col-sm text-start align-content-center text-end">
+                                <input type="submit" class="btn-primary" value="Search" style="width:7em"/>
+                            </div>
+                        </div><br />
+                    </div>
+
+                </div>
+            </div>
+            
+        </div>
+        
+    </form>
+    <table class="table">
+        <thead>
+            <tr>
+
+                <th>
+                    @Html.DisplayNameFor(model => model.Id)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.FullName)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Subdivision)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Position)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Status)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.PeoplePartner)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.OutOfOfficeBalance)
+                </th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Id)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FullName)
+                    </td>
+                    <td>
+                        @(((List<string>)ViewData["Subdivisions"])[@item.Subdivision])
+                    </td>
+                    <td>
+                        @(((List<string>)ViewData["Positions"])[@item.Position])
+                    </td>
+                    <td>
+                        @(item.Status ? "Active" : "Deactivated")
+                    </td>
+                    <td>
+                        @item.PeoplePartnerNavigation.FullName
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.OutOfOfficeBalance)
+                    </td>
+                    @if (User.IsInRole("Project Manager") || User.IsInRole("Administrator"))
+                    {
+                        <td>
+                            <a asp-action="Details" asp-route-id="@item.Id"><button class="btn-primary">Details</button></a>
+                        </td>
+                    }
+                    @if (User.IsInRole("HR Manager") || User.IsInRole("Administrator"))
+                    {
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.Id"><button class="btn-primary">Edit</button></a>
+                        </td>
+                        <td>
+                            @if (item.Status == true)
+                            {
+                                <a asp-action="Deactivate" asp-route-id="@item.Id"><button class="btn-primary">Deactivate</button></a>
+                            }
+                            else
+                            {
+                                <a asp-action="Deactivate" asp-route-id="@item.Id"><button class="btn-primary">Activate</button></a>
+                            }
+                        </td>
+                    }
+                    @if ((User.IsInRole("Project Manager") || User.IsInRole("Administrator") && item.Position == 2))
+                    {
+                        <td>
+                            <a asp-action="Assign" asp-route-id="@item.Id"><button class="btn-primary">Assign to Project</button></a>
+                        </td>
+                    }
+                    else
+                    {
+                        <td></td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+    @if (User.IsInRole("HR Manager") || User.IsInRole("Administrator"))
+    {
+        <a asp-controller="Employees" asp-action="AddEmployee"><button class="btn-primary">Add new Employee</button></a>
+    }
+</body>
+
 
 

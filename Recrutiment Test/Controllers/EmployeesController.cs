@@ -32,116 +32,47 @@ namespace Recrutiment_Test.Controllers
             this.context = context;
         }
         [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
-        public async Task<IActionResult> Index()
-        {
-            ViewData["Positions"] = positions;
-            ViewData["Subdivisions"] = subdivisions;
-            ViewData["SortOrder"] = "IDASC";
-            return View(await context.Employees.ToListAsync());
-        }
-        [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
         [HttpGet]
-        public async Task<IActionResult> Index(string Order)
+        public async Task<IActionResult> Index(string? search, int? idRange1, int? idRange2, string? subdivision, string? position, bool? status, int? peoplesPartner, int? ooobRange1, int? ooobRange2)
         {
-            Order = Order == null ? "IDASC" : Order;
+            int? subdivisionId = subdivision == null ? null : subdivisions.IndexOf(subdivision);
+            int? positionId = position == null ? null : positions.IndexOf(position);
+            idRange1 = idRange1 == null ? 0 : idRange1.Value;
+            idRange2 = idRange2 == null ? int.MaxValue : idRange2.Value;
+            ooobRange1 = ooobRange1 == null ? 0 : ooobRange1.Value;
+            ooobRange2 = ooobRange2 == null ? int.MaxValue : ooobRange2.Value;
+
+            List<Employee> employees = await context.Employees
+                .Where(p => search == null || p.FullName.Contains(search))
+                .Where(p => p.Id >= idRange1 && p.Id <= idRange2)
+                .Where(p => subdivision == null || p.Subdivision == subdivisionId)
+                .Where(p => position == null || p.Position == positionId)
+                .Where(p => status == null || p.Status == status)
+                .Where(p => peoplesPartner == null || p.PeoplePartner == peoplesPartner)
+                .Where(p => p.OutOfOfficeBalance >= ooobRange1 && p.OutOfOfficeBalance <= ooobRange2)
+                .ToListAsync();
+
             ViewData["Positions"] = positions;
             ViewData["Subdivisions"] = subdivisions;
-            ViewData["SortOrder"] = Order;
-            List<Employee> employees = await context.Employees.ToListAsync();
-            switch (Order)
-            {
-                case "IDASC":
-                    employees.Sort(delegate (Employee X, Employee Y)
-                    {
-                        return X.Id.CompareTo(Y.Id);
-                    });
-                    break;
-                case "IDDESC":
-                    employees.Sort(delegate (Employee X, Employee Y)
-                    {
-                        return -X.Id.CompareTo(Y.Id);
-                    });
-                    break;
-                case "NAMEASC":
-                    employees.Sort(delegate (Employee X, Employee Y)
-                    {
-                        return X.FullName.CompareTo(Y.FullName);
-                    });
-                    break;
-                case "NAMEDESC":
-                    employees.Sort(delegate (Employee X, Employee Y)
-                    {
-                        return -X.FullName.CompareTo(Y.FullName);
-                    });
-                    break;
-                case "SDASC":
-                    employees.Sort(delegate (Employee X, Employee Y)
-                    {
-                        return X.Subdivision.CompareTo(Y.Subdivision);
-                    });
-                    break;
-                case "SDDESC":
-                    employees.Sort(delegate (Employee X, Employee Y)
-                    {
-                        return -X.Subdivision.CompareTo(Y.Subdivision);
-                    });
-                    break;
-                case "POSASC":
-                    employees.Sort(delegate (Employee X, Employee Y)
-                    {
-                        return X.Position.CompareTo(Y.Position);
-                    });
-                    break;
-                case "POSDESC":
-                    employees.Sort(delegate (Employee X, Employee Y)
-                    {
-                        return -X.Position.CompareTo(Y.Position);
-                    });
-                    break;
-                case "STSASC":
-                    employees.Sort(delegate (Employee X, Employee Y)
-                    {
-                        return X.Status.CompareTo(Y.Status);
-                    });
-                    break;
-                case "STSDESC":
-                    employees.Sort(delegate (Employee X, Employee Y)
-                    {
-                        return -X.Status.CompareTo(Y.Status);
-                    });
-                    break;
-                case "PPASC":
-                    employees.Sort(delegate (Employee X, Employee Y)
-                    {
-                        return X.PeoplePartner.CompareTo(Y.PeoplePartner);
-                    });
-                    break;
-                case "PPDESC":
-                    employees.Sort(delegate (Employee X, Employee Y)
-                    {
-                        return -X.PeoplePartner.CompareTo(Y.PeoplePartner);
+            ViewBag.Position = new SelectList(positions);
+            ViewBag.Subdivision = new SelectList(subdivisions);
 
-                    });
-                    break;
-                case "OOOBASC":
-                    employees.Sort(delegate (Employee X, Employee Y)
+            EmployeeModel employeeModel = new EmployeeModel();
+            employeeModel.EmployeeList = new List<SelectListItem>();
+
+            var data = context.Employees.ToList();
+            foreach (var item in data)
+            {
+                if (item.Position == 0)
+                {
+                    employeeModel.EmployeeList.Add(new SelectListItem
                     {
-                        return X.OutOfOfficeBalance.CompareTo(Y.OutOfOfficeBalance);
+                        Text = item.FullName,
+                        Value = item.Id.ToString()
                     });
-                    break;
-                case "OOOBDESC":
-                    employees.Sort(delegate (Employee X, Employee Y)
-                    {
-                        return -X.OutOfOfficeBalance.CompareTo(Y.OutOfOfficeBalance);
-                    });
-                    break;
-                default:
-                    employees.Sort(delegate (Employee X, Employee Y)
-                    {
-                        return X.Id.CompareTo(Y.Id);
-                    });
-                    break;
+                }
             }
+            ViewData["EmployeeModel"] = employeeModel;
             return View(employees);
         }
         [Authorize(Roles = "HR Manager,Administrator")]

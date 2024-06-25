@@ -7,7 +7,7 @@ using System.Text.Encodings.Web;
 
 namespace Recrutiment_Test.Controllers
 {
-    [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
+    [Authorize]
     public class ApprovalRequestsController : Controller
     {
         public static List<string> statuses = new List<string>()
@@ -25,77 +25,21 @@ namespace Recrutiment_Test.Controllers
             this.context = context;
         }
         [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
-        public async Task<IActionResult> Index()
-        {
-            ViewData["Statuses"] = statuses;
-            ViewData["SortOrder"] = "IDASC";
-            return View(await context.ApprovalRequests.ToListAsync());
-        }
-        [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
         [HttpGet]
-        public async Task<IActionResult> Index(string Order)
+        public async Task<IActionResult> Index(string? search, int? idRange1, int? idRange2, string? status)
         {
-            Order = Order == null ? "IDASC" : Order;
+            idRange1 = idRange1 == null ? 0 : idRange1.Value;
+            idRange2 = idRange2 == null ? int.MaxValue : idRange2.Value;
+            int? statusId = status == null ? null : statuses.IndexOf(status);
+
+            List<ApprovalRequest> approvalRequests = await context.ApprovalRequests.Include(p => p.ApproverNavigation).Include(p => p.LeaveRequestNavigation)
+                .Where(p => search == null || p.Id.ToString().Contains(search))
+                .Where(p => p.Id >= idRange1 && p.Id <=  idRange2)
+                .Where(p => status == null || p.Status == statusId)
+                .ToListAsync();
+
             ViewData["Statuses"] = statuses;
-            ViewData["SortOrder"] = Order;
-            List<ApprovalRequest> approvalRequests = await context.ApprovalRequests.Include(p => p.ApproverNavigation).Include(p => p.LeaveRequestNavigation).ToListAsync();
-            switch (Order)
-            {
-                case "IDASC":
-                    approvalRequests.Sort(delegate (ApprovalRequest X, ApprovalRequest Y)
-                    {
-                        return X.Id.CompareTo(Y.Id);
-                    });
-                    break;
-                case "IDDESC":
-                    approvalRequests.Sort(delegate (ApprovalRequest X, ApprovalRequest Y)
-                    {
-                        return -X.Id.CompareTo(Y.Id);
-                    });
-                    break;
-                case "APRASC":
-                    approvalRequests.Sort(delegate (ApprovalRequest X, ApprovalRequest Y)
-                    {
-                        return X.Approver.CompareTo(Y.Approver);
-                    });
-                    break;
-                case "APRDESC":
-                    approvalRequests.Sort(delegate (ApprovalRequest X, ApprovalRequest Y)
-                    {
-                        return -X.Approver.CompareTo(Y.Approver);
-                    });
-                    break;
-                case "LRASC":
-                    approvalRequests.Sort(delegate (ApprovalRequest X, ApprovalRequest Y)
-                    {
-                        return X.LeaveRequest.CompareTo(Y.LeaveRequest);
-                    });
-                    break;
-                case "LRDESC":
-                    approvalRequests.Sort(delegate (ApprovalRequest X, ApprovalRequest Y)
-                    {
-                        return -X.LeaveRequest.CompareTo(Y.LeaveRequest);
-                    });
-                    break;
-                case "STSASC":
-                    approvalRequests.Sort(delegate (ApprovalRequest X, ApprovalRequest Y)
-                    {
-                        return X.Status.CompareTo(Y.Status);
-                    });
-                    break;
-                case "STSDESC":
-                    approvalRequests.Sort(delegate (ApprovalRequest X, ApprovalRequest Y)
-                    {
-                        return -X.Status.CompareTo(Y.Status);
-                    });
-                    break;
-                default:
-                    approvalRequests.Sort(delegate (ApprovalRequest X, ApprovalRequest Y)
-                    {
-                        return X.Id.CompareTo(Y.Id);
-                    });
-                    break;
-            }
+            ViewBag.Status = new SelectList(statuses);
             return View(approvalRequests);
         }
         [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
@@ -234,9 +178,11 @@ namespace Recrutiment_Test.Controllers
             }
             return RedirectToAction("Index");
         }
-        [Authorize(Roles = "HR Manager,Project Manager,Administrator")]
-        public async Task<IActionResult> Details(int? id)
+        [Authorize]
+        public async Task<IActionResult> Details(int? id, int? back)
         {
+            ViewData["Back"] = back;
+
             if (id == null)
             {
                 return NotFound();

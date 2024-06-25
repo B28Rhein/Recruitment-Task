@@ -25,115 +25,45 @@ namespace Recrutiment_Test.Controllers
             this.context = context;
         }
         [Authorize]
-        public async Task<IActionResult> Index()
-        {
-            ViewData["ProjectType"] = ProjectTypes;
-            ViewData["SortOrder"] = "IDASC";
-            return View(await context.Projects.ToListAsync());
-        }
-        [Authorize]
         [HttpGet]
-        public async Task<IActionResult> Index(string Order)
+        public async Task<IActionResult> Index(string? search, int? idRange1, int? idRange2, string? projectType, DateOnly? startDateRange1, DateOnly? startDateRange2, DateOnly? endDateRange1, DateOnly? endDateRange2, int? projectManager, bool? status)
         {
-            Order = Order == null ? "IDASC" : Order;
-            ViewData["ProjectTypes"] = ProjectTypes;
-            ViewData["SortOrder"] = Order;
-            
-            List<Project> project = await context.Projects.Include(p => p.ProjectManagerNavigation).Include(p => p.Employees).ToListAsync();
-            switch (Order)
-            {
-                case "IDASC":
-                    project.Sort(delegate (Project X, Project Y)
-                    {
-                        return X.Id.CompareTo(Y.Id);
-                    });
-                    break;
-                case "IDDESC":
-                    project.Sort(delegate (Project X, Project Y)
-                    {
-                        return -X.Id.CompareTo(Y.Id);
-                    });
-                    break;
-                case "PTASC":
-                    project.Sort(delegate (Project X, Project Y)
-                    {
-                        return X.ProjectType.CompareTo(Y.ProjectType);
-                    });
-                    break;
-                case "PTDESC":
-                    project.Sort(delegate (Project X, Project Y)
-                    {
-                        return -X.ProjectType.CompareTo(Y.ProjectType);
-                    });
-                    break;
-                case "SDASC":
-                    project.Sort(delegate (Project X, Project Y)
-                    {
-                        return X.StartDate.CompareTo(Y.StartDate);
-                    });
-                    break;
-                case "SDDESC":
-                    project.Sort(delegate (Project X, Project Y)
-                    {
-                        return -X.StartDate.CompareTo(Y.StartDate);
-                    });
-                    break;
-                case "EDASC":
-                    project.Sort(delegate (Project X, Project Y)
-                    {
-                        if (!(X.EndDate == null || Y.EndDate == null))
-                            return X.EndDate.Value.CompareTo(Y.EndDate.Value);
-                        else if (X.EndDate != null)
-                            return 1;
-                        else if (Y.EndDate != null)
-                            return -1;
-                        else return 0;
-                    });
-                    break;
-                case "EDDESC":
-                    project.Sort(delegate (Project X, Project Y)
-                    {
-                        if (!(X.EndDate == null || Y.EndDate == null))
-                            return -X.EndDate.Value.CompareTo(Y.EndDate.Value);
-                        else if (X.EndDate != null)
-                            return -1;
-                        else if (Y.EndDate != null)
-                            return 1;
-                        else return 0;
-                    });
-                    break;
-                case "PMASC":
-                    project.Sort(delegate (Project X, Project Y)
-                    {
-                        return X.ProjectManager.CompareTo(Y.ProjectManager);
-                    });
-                    break;
-                case "PMDESC":
-                    project.Sort(delegate (Project X, Project Y)
-                    {
-                        return -X.ProjectManager.CompareTo(Y.ProjectManager);
+            idRange1 = idRange1 == null ? 0 : idRange1.Value;
+            idRange2 = idRange2 == null ? int.MaxValue : idRange2.Value;
+            int? projectTypeId = projectType == null ? null : ProjectTypes.IndexOf(projectType);
+            startDateRange1 = startDateRange1 == null ? DateOnly.MinValue : startDateRange1.Value;
+            startDateRange2 = startDateRange2 == null ? DateOnly.MaxValue : startDateRange2.Value;
+            endDateRange1 = endDateRange1 == null ? DateOnly.MinValue : endDateRange1.Value;
+            endDateRange2 = endDateRange2 == null ? DateOnly.MaxValue : endDateRange2.Value;
 
-                    });
-                    break;
-                case "STSASC":
-                    project.Sort(delegate (Project X, Project Y)
+            EmployeeModel projectManagers = new EmployeeModel();
+            projectManagers.EmployeeList = new List<SelectListItem>();
+
+            var data = context.Employees.ToList();
+            foreach (var item in data)
+            {
+                if (item.Position == 1)
+                {
+                    projectManagers.EmployeeList.Add(new SelectListItem
                     {
-                        return X.Status.CompareTo(Y.Status);
+                        Text = item.FullName,
+                        Value = item.Id.ToString()
                     });
-                    break;
-                case "STSDESC":
-                    project.Sort(delegate (Project X, Project Y)
-                    {
-                        return -X.Status.CompareTo(Y.Status);
-                    });
-                    break;
-                default:
-                    project.Sort(delegate (Project X, Project Y)
-                    {
-                        return X.Id.CompareTo(Y.Id);
-                    });
-                    break;
+                }
             }
+            ViewData["ProjectManagers"] = projectManagers;
+            ViewData["ProjectTypes"] = ProjectTypes;
+            ViewBag.ProjectType = new SelectList(ProjectTypes);
+
+            List<Project> project = await context.Projects.Include(p => p.ProjectManagerNavigation).Include(p => p.Employees)
+                .Where(p => search == null || p.Id.ToString().Contains(search))
+                .Where(p => p.Id >= idRange1 && p.Id <= idRange2)
+                .Where(p => projectType == null || p.ProjectType == projectTypeId)
+                .Where(p => p.StartDate >= startDateRange1 && p.StartDate <= startDateRange2)
+                .Where(p => p.EndDate >= endDateRange1 && p.EndDate <= endDateRange2)
+                .Where(p => projectManager == null || p.ProjectManager == projectManager)
+                .Where(p => status == null || p.Status == status)
+                .ToListAsync();
             return View(project);
         }
         [Authorize(Roles = "Project Manager,Administrator")]

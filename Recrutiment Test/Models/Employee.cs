@@ -17,7 +17,7 @@ public partial class Employee
     public bool Status { get; set; }
     [Display(Name = "People Partner")]
     public int PeoplePartner { get; set; }
-    [Display(Name = "Out-of-Office Balance")]
+    [Display(Name = "Out-of-Office Balance (days)")]
     public int OutOfOfficeBalance { get; set; }
 
     public virtual ICollection<AppUser> AppUsers { get; set; } = new List<AppUser>();

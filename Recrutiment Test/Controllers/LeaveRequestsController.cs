@@ -22,8 +22,8 @@ namespace Recrutiment_Test.Controllers
             "New",
             "Approved",
             "Rejected",
+            "Canceled",
             "Submited",
-            "Canceled"
         };
 
         private readonly RecruitmentDbContext context;
@@ -33,104 +33,33 @@ namespace Recrutiment_Test.Controllers
             this.context = context;
         }
         [Authorize]
-        public async Task<IActionResult> Index()
-        {
-            ViewData["AbsenceReasons"] = absenceReasons;
-            ViewData["Statuses"] = statuses;
-            ViewData["SortOrder"] = "IDASC";
-            return View(await context.LeaveRequests.ToListAsync());
-        }
-        [Authorize]
         [HttpGet]
-        public async Task<IActionResult> Index(string Order)
+        public async Task<IActionResult> Index(string? search, int? idRange1, int? idRange2, int? employeeIdRange1, int? employeeIdRange2, string? absenceReason, DateOnly? startDateRange1, DateOnly? startDateRange2, DateOnly? endDateRange1, DateOnly? endDateRange2, string? status)
         {
-            Order = Order == null ? "IDASC" : Order;
+            idRange1 = idRange1 == null ? 0 : idRange1.Value;
+            idRange2 = idRange2 == null ? int.MaxValue : idRange2.Value;
+            employeeIdRange1 = employeeIdRange1 == null ? 0 : employeeIdRange1.Value;
+            employeeIdRange2 = employeeIdRange2 == null ? int.MaxValue : employeeIdRange2.Value;
+            int? absenceReasonnId = absenceReason == null ? null : absenceReasons.IndexOf(absenceReason);
+            int? statusId = status == null ? null : statuses.IndexOf(status);
+            startDateRange1 = startDateRange1 == null ? DateOnly.MinValue : startDateRange1.Value;
+            startDateRange2 = startDateRange2 == null ? DateOnly.MaxValue : startDateRange2.Value;
+            endDateRange1 = endDateRange1 == null ? DateOnly.MinValue : endDateRange1.Value;
+            endDateRange2 = endDateRange2 == null ? DateOnly.MaxValue : endDateRange2.Value;
+
             ViewData["AbsenceReasons"] = absenceReasons;
             ViewData["Statuses"] = statuses;
-            ViewData["SortOrder"] = Order;
-            List<LeaveRequest> leaveRequests = await context.LeaveRequests.Include(p => p.EmployeeNavigation).ToListAsync();
-            switch (Order)
-            {
-                case "IDASC":
-                    leaveRequests.Sort(delegate (LeaveRequest X, LeaveRequest Y)
-                    {
-                        return X.Id.CompareTo(Y.Id);
-                    });
-                    break;
-                case "IDDESC":
-                    leaveRequests.Sort(delegate (LeaveRequest X, LeaveRequest Y)
-                    {
-                        return -X.Id.CompareTo(Y.Id);
-                    });
-                    break;
-                case "EMPASC":
-                    leaveRequests.Sort(delegate (LeaveRequest X, LeaveRequest Y)
-                    {
-                        return X.Employee.CompareTo(Y.Employee);
-                    });
-                    break;
-                case "EMPDESC":
-                    leaveRequests.Sort(delegate (LeaveRequest X, LeaveRequest Y)
-                    {
-                        return -X.Employee.CompareTo(Y.Employee);
-                    });
-                    break;
-                case "ARASC":
-                    leaveRequests.Sort(delegate (LeaveRequest X, LeaveRequest Y)
-                    {
-                        return X.AbsenceReason.CompareTo(Y.AbsenceReason);
-                    });
-                    break;
-                case "ARDESC":
-                    leaveRequests.Sort(delegate (LeaveRequest X, LeaveRequest Y)
-                    {
-                        return -X.AbsenceReason.CompareTo(Y.AbsenceReason);
-                    });
-                    break;
-                case "SDASC":
-                    leaveRequests.Sort(delegate (LeaveRequest X, LeaveRequest Y)
-                    {
-                        return X.StartDate.CompareTo(Y.StartDate);
-                    });
-                    break;
-                case "SDDESC":
-                    leaveRequests.Sort(delegate (LeaveRequest X, LeaveRequest Y)
-                    {
-                        return -X.StartDate.CompareTo(Y.StartDate);
-                    });
-                    break;
-                case "EDASC":
-                    leaveRequests.Sort(delegate (LeaveRequest X, LeaveRequest Y)
-                    {
-                        return X.EndDate.CompareTo(Y.EndDate);
-                    });
-                    break;
-                case "EDDESC":
-                    leaveRequests.Sort(delegate (LeaveRequest X, LeaveRequest Y)
-                    {
-                        return -X.EndDate.CompareTo(Y.EndDate);
-
-                    });
-                    break;
-                case "STSASC":
-                    leaveRequests.Sort(delegate (LeaveRequest X, LeaveRequest Y)
-                    {
-                        return X.Status.CompareTo(Y.Status);
-                    });
-                    break;
-                case "STSDESC":
-                    leaveRequests.Sort(delegate (LeaveRequest X, LeaveRequest Y)
-                    {
-                        return -X.Status.CompareTo(Y.Status);
-                    });
-                    break;
-                default:
-                    leaveRequests.Sort(delegate (LeaveRequest X, LeaveRequest Y)
-                    {
-                        return X.Id.CompareTo(Y.Id);
-                    });
-                    break;
-            }
+            ViewBag.Status = new SelectList(statuses);
+            ViewBag.AbsenceReason = new SelectList(absenceReasons);
+            List<LeaveRequest> leaveRequests = await context.LeaveRequests.Include(p => p.EmployeeNavigation)
+                .Where(p => search == null || p.Id.ToString().Contains(search))
+                .Where(p => p.Id >= idRange1 && p.Id <= idRange2)
+                .Where(p => p.Employee >= employeeIdRange1 && p.Employee <= employeeIdRange2)
+                .Where(p => absenceReason == null || p.AbsenceReason == absenceReasonnId)
+                .Where(p => p.StartDate >= startDateRange1 && p.StartDate <= startDateRange2 )
+                .Where(p => p.EndDate >= endDateRange1 && p.EndDate <= endDateRange2 )
+                .Where(p => statusId == null || p.Status == statusId)
+                .ToListAsync();
             return View(leaveRequests);
         }
         [Authorize(Roles ="Employee,Administrator")]
@@ -342,7 +271,7 @@ namespace Recrutiment_Test.Controllers
                     }
                 }
                 Approvers.Add(employee.PeoplePartner);
-                leaveRequest.Status = 3;
+                leaveRequest.Status = 4;
                 if (ModelState.IsValid)
                 {
                     try
@@ -410,7 +339,7 @@ namespace Recrutiment_Test.Controllers
             }
             if (cancel)
             {
-                LeaveRequest.Status = 4;
+                LeaveRequest.Status = 3;
                 for (int i = 0; i < approvals.Count; i++)
                 {
                     approvals[i].Status = 3;
@@ -450,7 +379,7 @@ namespace Recrutiment_Test.Controllers
                 return NotFound();
             }
 
-            var LeaveRequest = await context.LeaveRequests.Include(p => p.EmployeeNavigation).FirstOrDefaultAsync(p => p.Id == id);
+            var LeaveRequest = await context.LeaveRequests.Include(p => p.EmployeeNavigation).Include(p => p.ApprovalRequests).ThenInclude(p => p.ApproverNavigation).FirstOrDefaultAsync(p => p.Id == id);
             if (LeaveRequest == null)
             {
                 return NotFound();

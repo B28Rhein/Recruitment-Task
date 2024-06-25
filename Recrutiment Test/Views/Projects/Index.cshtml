@@ -2,111 +2,193 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
-    ViewData["Title"] = "Employees";
-    string SortOrder = (string)ViewData["SortOrder"];
+    ViewData["Title"] = "Projects";
 }
 @model IEnumerable<Recrutiment_Test.Models.Project>
 
 <head>
-    <script>
-        function SetSort(SortOrder) {
-            document.getElementById("Order").value = SortOrder;
-            document.getElementById("form1").submit();
+    <script src="~/js/site.js"></script>
+    <style>
+        th {
+            cursor: pointer
         }
-    </script>
+    </style>
 </head>
 
-<h2>Projects List</h2>
-<table class="table">
-    <thead>
-        <tr>
-            
-            <th onclick="SetSort(@(SortOrder == "IDASC" ? "\"IDDESC\"" : "\"IDASC\""))">
-                @Html.DisplayNameFor(model => model.Id)
-                @(SortOrder == "IDASC" ? "↓" : "↑")
-            </th>
-            <th onclick="SetSort(@(SortOrder == "PTASC" ? "\"PTDESC\"" : "\"PTASC\""))">
-                @Html.DisplayNameFor(model => model.ProjectType)
-                @(SortOrder == "PTASC" ? "↓" : "↑")
-            </th>
-            <th onclick="SetSort(@(SortOrder == "SDASC" ? "\"SDDESC\"" : "\"SDASC\""))">
-                @Html.DisplayNameFor(model => model.StartDate)
-                @(SortOrder == "SDASC" ? "↓" : "↑")
-            </th>
-            <th onclick="SetSort(@(SortOrder == "EDASC" ? "\"EDDESC\"" : "\"EDASC\""))">
-                @Html.DisplayNameFor(model => model.EndDate)
-                @(SortOrder == "EDASC" ? "↓" : "↑")
-            </th>
-            <th onclick="SetSort(@(SortOrder == "PMASC" ? "\"PMDESC\"" : "\"PMASC\""))">
-                @Html.DisplayNameFor(model => model.ProjectManager)
-                @(SortOrder == "PMASC" ? "↓" : "↑")
-            </th>
-            <th onclick="SetSort(@(SortOrder == "STSASC" ? "\"STSDESC\"" : "\"STSASC\""))">
-                @Html.DisplayNameFor(model => model.Status)
-                @(SortOrder == "STSASC" ? "↓" : "↑")
-            </th>
-            <th></th>
-            <th></th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            if(!User.IsInRole("Employee") || item.Employees.FirstOrDefault(p => User.Claims.FirstOrDefault(o => o.Value==p.Id.ToString()) != null) != null)
+<body onload="Addsorting()">
+    <h2>Projects List</h2>
+    <form asp-action="Index" method="get">
+        <div class="bg-light text-center">
+            <div class="fw-bold h5">
+                Filters<input class="h6 btn-secondary" type="button" value="\/" id="hideShowButton" onclick="hideShowFilters()" />
+            </div>
+            <div class="container" id="filters" hidden="true">
+                <div class="row">
+                    <div class="col">
+                        <label class="form-label">ID</label><br />
+                        <div class="row h4">
+                            <div class="col">
+                                <input type="number" id="idRange1" name="idRange1" min="0" class="form-control" />
+                            </div>
+                            -
+                            <div class="col">
+                                <input type="number" id="idRange2" name="idRange2" min="0" class="form-control" />
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col">
+                        <label class="form-label">Project Type</label>
+                        @Html.DropDownList("projectType", ViewBag.ProjectType, "Select Project Type", new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label class="form-label">Start Date</label><br />
+                        <div class="row h4">
+                            <div class="col">
+                                <input type="date" id="startDateRange1" name="startDateRange1" min="0" class="form-control" />
+                            </div>
+                            -
+                            <div class="col">
+                                <input type="date" id="startDateRange2" name="startDateRange2" min="0" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label class="form-label">End Date</label><br />
+                        <div class="row h4">
+                            <div class="col">
+                                <input type="date" id="endDateRange1" name="endDateRange1" min="0" class="form-control" />
+                            </div>
+                            -
+                            <div class="col">
+                                <input type="date" id="endDateRange2" name="endDateRange2" min="0" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label class="form-label">Project Manager</label>
+                        @Html.DropDownList("projectManager",
+                                 new SelectList(((EmployeeModel)ViewData["ProjectManagers"]).EmployeeList, "Value", "Text"),
+                                 "Select Project Manager",
+                                 new { @class = "form-control" })
+                    </div>
+                    <div class="col">
+                        <label class="form-label">Status</label><br />
+                        <select class="form-control" id="status" name="status">
+                            <option>Select status</option>
+                            <option value="false">Inactive</option>
+                            <option value="true">Active</option>
+                        </select>
+                        <br />
+
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col">
+                        <div class="row">
+                            <div class="col">
+                                <input type="text" id="search" name="search" placeholder="Search by Request ID" class="form-control" />
+                            </div>
+                            <div class="col-sm text-start align-content-center text-end">
+                                <input type="submit" class="btn-primary" value="Search" style="width:7em" />
+                            </div>
+                        </div><br />
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </form>
+    <table class="table">
+        <thead>
+            <tr>
+
+                <th>
+                    @Html.DisplayNameFor(model => model.Id)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ProjectType)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.StartDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.EndDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.ProjectManager)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Status)
+                </th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
             {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Id)
-                    </td>
-                    <td>
-                        @(((List<string>)ViewData["ProjectTypes"])[@item.ProjectType])
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.StartDate)
-                    </td>
-                    <td>
-                        @(item.EndDate == null ? "Unspecified" : item.EndDate.Value)
-                    </td>
-
-                    <td>
-                        @item.ProjectManagerNavigation.FullName
-                    </td>
-                    <td>
-                        @(item.Status ? "Active" : "Deactivated")
-                    </td>
-                    <td>
-                        <a asp-action="Details" asp-route-id="@item.Id"><button class="btn-primary">Details</button></a>
-                    </td>
-                    @if (User.IsInRole("Project Manager") || User.IsInRole("Administrator"))
-                    {
+                if (!User.IsInRole("Employee") || item.Employees.FirstOrDefault(p => User.Claims.FirstOrDefault(o => o.Value == p.Id.ToString()) != null) != null)
+                {
+                    <tr>
                         <td>
-                            <a asp-action="Edit" asp-route-id="@item.Id"><button class="btn-primary">Edit</button></a>
+                            @Html.DisplayFor(modelItem => item.Id)
                         </td>
                         <td>
-                            @if (item.Status == true)
-                            {
-                                <a asp-action="Deactivate" asp-route-id="@item.Id"><button class="btn-primary">Deactivate</button></a>
-                            }
-                            else
-                            {
-                                <a asp-action="Deactivate" asp-route-id="@item.Id"><button class="btn-primary">Activate</button></a>
-                            }
-
+                            @(((List<string>)ViewData["ProjectTypes"])[@item.ProjectType])
                         </td>
-                    }
-                </tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.StartDate)
+                        </td>
+                        <td>
+                            @(item.EndDate == null ? "Unspecified" : item.EndDate.Value)
+                        </td>
+
+                        <td>
+                            @item.ProjectManagerNavigation.FullName (@item.ProjectManager)
+                        </td>
+                        <td>
+                            @(item.Status ? "Active" : "Deactivated")
+                        </td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@item.Id"><button class="btn-primary">Details</button></a>
+                        </td>
+                        @if (User.IsInRole("Project Manager") || User.IsInRole("Administrator"))
+                        {
+                            <td>
+                                <a asp-action="Edit" asp-route-id="@item.Id"><button class="btn-primary">Edit</button></a>
+                            </td>
+                            <td>
+                                @if (item.Status == true)
+                                {
+                                    <a asp-action="Deactivate" asp-route-id="@item.Id"><button class="btn-primary">Deactivate</button></a>
+                                }
+                                else
+                                {
+                                    <a asp-action="Deactivate" asp-route-id="@item.Id"><button class="btn-primary">Activate</button></a>
+                                }
+
+                            </td>
+                        }
+                    </tr>
+                }
+
             }
-            
-        }
-    </tbody>
-</table>
-@if(User.IsInRole("Project Manager") || User.IsInRole("Administrator"))
-{
-    <a asp-controller="Projects" asp-action="AddProject"><button class="btn-primary">Add new Project</button></a>
-}
-<form asp-action="Index" method="get" id="form1">
-    <input type="hidden" id="Order" name="Order" />
-</form>
+        </tbody>
+    </table>
+    @if (User.IsInRole("Project Manager") || User.IsInRole("Administrator"))
+    {
+        <a asp-controller="Projects" asp-action="AddProject"><button class="btn-primary">Add new Project</button></a>
+    }
+</body>
 
 

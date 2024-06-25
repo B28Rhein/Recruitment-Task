@@ -2,81 +2,121 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
-    ViewData["Title"] = "ApproveRequests";
-    string SortOrder = (string)ViewData["SortOrder"];
+    ViewData["Title"] = "Approval Requests";
 }
 @model IEnumerable<Recrutiment_Test.Models.ApprovalRequest>
 
 <head>
-    <script>
-        function SetSort(SortOrder) {
-            document.getElementById("Order").value = SortOrder;
-            document.getElementById("form1").submit();
+    <script src="~/js/site.js"></script>
+    <style>
+        th {
+            cursor: pointer
         }
-    </script>
+    </style>
 </head>
+<body onload="Addsorting()">
+    <h2>Approval Requests List</h2>
+    <form asp-action="Index" method="get">
+        <div class="bg-light text-center">
+            <div class="fw-bold h5">
+                Filters<input class="h6 btn-secondary" type="button" value="\/" id="hideShowButton" onclick="hideShowFilters()" />
+            </div>
 
-<h2>Approval Requests List</h2>
-<table class="table">
-    <thead>
-        <tr>
-            <th onclick="SetSort(@(SortOrder == "IDASC" ? "\"IDDESC\"" : "\"IDASC\""))">
-                @Html.DisplayNameFor(model => model.Id)
-                @(SortOrder == "IDASC" ? "↓" : "↑")
-            </th>
-            <th onclick="SetSort(@(SortOrder == "APRASC" ? "\"APRDESC\"" : "\"APRASC\""))">
-                @Html.DisplayNameFor(model => model.Approver)
-                @(SortOrder == "APRASC" ? "↓" : "↑")
-            </th>
-            <th onclick="SetSort(@(SortOrder == "LRASC" ? "\"LRDESC\"" : "\"LRASC\""))">
-                @Html.DisplayNameFor(model => model.LeaveRequest)
-                @(SortOrder == "LRASC" ? "↓" : "↑")
-            </th>
-            <th onclick="SetSort(@(SortOrder == "STSASC" ? "\"STSDESC\"" : "\"STSASC\""))">
-                @Html.DisplayNameFor(model => model.Status)
-                @(SortOrder == "STSASC" ? "↓" : "↑")
-            </th>
-            </th>
-            <th></th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            if (User.IsInRole("Administrator") || (User.Identity.IsAuthenticated && User.HasClaim(c => c.ValueType == "http://www.w3.org/2001/XMLSchema#string" && c.Value == item.Approver.ToString())))
+            <div class="container" id="filters" hidden="true">
+                <div class="row">
+                    <div class="col">
+                        <label class="form-label">ID</label><br />
+                        <div class="row h4">
+                            <div class="col">
+                                <input type="number" id="idRange1" name="idRange1" min="0" class="form-control" />
+                            </div>
+                            -
+                            <div class="col">
+                                <input type="number" id="idRange2" name="idRange2" min="0" class="form-control" />
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col">
+                        <label class="form-label">Status</label><br />
+                        @Html.DropDownList("status", ViewBag.Status, "Select Status", new { @class = "form-control" })
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col">
+                        <div class="row">
+                            <div class="col">
+                                <input type="text" id="search" name="search" placeholder="Search by Request ID" class="form-control" />
+                            </div>
+                            <div class="col-sm text-start align-content-center text-end">
+                                <input type="submit" class="btn-primary" value="Search" style="width:7em" />
+                            </div>
+                        </div><br />
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </form>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Id)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Approver)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.LeaveRequest)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Status)
+                </th>
+                </th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
             {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Id)
-                    </td>
-                    <td>
-                        @item.ApproverNavigation.Id
-                    </td>
-                    <td>
-                        @item.LeaveRequestNavigation.Id
-                    </td>
-                    <td>
-                        @(((List<string>)ViewData["Statuses"])[@item.Status])
-                    </td>
-                    <td>
-                        <a asp-action="Details" asp-route-id="@item.Id"><button class="btn-primary">Details</button></a>
-                    </td>
-                    <td>
-                        @if (item.Status == 0 && (User.IsInRole("HR Manager") || User.IsInRole("Project Manager") || User.IsInRole("Administrator")))
-                        {
-                            <a asp-action="Approve" asp-route-id="@item.Id"><button class="btn-primary">Approve</button></a>
-                            <a asp-action="Reject" asp-route-id="@item.Id"><button class="btn-primary">Reject</button></a>
-                        }
+                if (User.IsInRole("Administrator") || (User.Identity.IsAuthenticated && User.HasClaim(c => c.ValueType == "http://www.w3.org/2001/XMLSchema#string" && c.Value == item.Approver.ToString())))
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Id)
+                        </td>
+                        <td>
+                            @item.ApproverNavigation.Id
+                        </td>
+                        <td>
+                            @item.LeaveRequestNavigation.Id
+                        </td>
+                        <td>
+                            @(((List<string>)ViewData["Statuses"])[@item.Status])
+                        </td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@item.Id"><button class="btn-primary">Details</button></a>
+                        </td>
+                        <td>
+                            @if (item.Status == 0 && (User.IsInRole("HR Manager") || User.IsInRole("Project Manager") || User.IsInRole("Administrator")))
+                            {
+                                <a asp-action="Approve" asp-route-id="@item.Id"><button class="btn-primary">Approve</button></a>
+                                <a asp-action="Reject" asp-route-id="@item.Id"><button class="btn-primary">Reject</button></a>
+                            }
 
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+                }
             }
-        }
-    </tbody>
-</table>
-<form asp-action="Index" method="get" id="form1">
-    <input type="hidden" id="Order" name="Order" />
-</form>
+        </tbody>
+    </table>
+</body>
+
 
 

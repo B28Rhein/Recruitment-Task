@@ -2,109 +2,196 @@
     For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 *@
 @{
-    ViewData["Title"] = "Employees";
-    string SortOrder = (string)ViewData["SortOrder"];
+    ViewData["Title"] = "Leave Requests";
 }
 @model IEnumerable<Recrutiment_Test.Models.LeaveRequest>
 
 <head>
-    <script>
-        function SetSort(SortOrder) {
-            document.getElementById("Order").value = SortOrder;
-            document.getElementById("form1").submit();
+    <script src="~/js/site.js"></script>
+    <style>
+        th {
+            cursor: pointer
         }
-    </script>
+    </style>
 </head>
 
-<h2>Leave Requests List</h2>
-<table class="table">
-    <thead>
-        <tr>
-            
-            <th onclick="SetSort(@(SortOrder == "IDASC" ? "\"IDDESC\"" : "\"IDASC\""))">
-                @Html.DisplayNameFor(model => model.Id)
-                @(SortOrder == "IDASC" ? "↓" : "↑")
-            </th>
-            <th onclick="SetSort(@(SortOrder == "EMPASC" ? "\"EMPDESC\"" : "\"EMPASC\""))">
-                @Html.DisplayNameFor(model => model.Employee)
-                @(SortOrder == "EMPASC" ? "↓" : "↑")
-            </th>
-            <th onclick="SetSort(@(SortOrder == "ARASC" ? "\"ARDESC\"" : "\"ARASC\""))">
-                @Html.DisplayNameFor(model => model.AbsenceReason)
-                @(SortOrder == "ARASC" ? "↓" : "↑")
-            </th>
-            <th onclick="SetSort(@(SortOrder == "SDASC" ? "\"SDDESC\"" : "\"SDASC\""))">
-                @Html.DisplayNameFor(model => model.StartDate)
-                @(SortOrder == "SDASC" ? "↓" : "↑")
-            </th>
-            <th onclick="SetSort(@(SortOrder == "EDASC" ? "\"EDDESC\"" : "\"EDASC\""))">
-                @Html.DisplayNameFor(model => model.EndDate)
-                @(SortOrder == "EDASC" ? "↓" : "↑")
-            </th>
-            
-            <th onclick="SetSort(@(SortOrder == "STSASC" ? "\"STSDESC\"" : "\"STSASC\""))">
-                @Html.DisplayNameFor(model => model.Status)
-                @(SortOrder == "STSASC" ? "↓" : "↑")
-            </th>
-            <th></th>
-            <th></th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            if(User.HasClaim(p => p.Value == item.Employee.ToString()) || !User.IsInRole("Employee"))
+<body onload="Addsorting()">
+    <h2>Leave Requests List</h2>
+    <form asp-action="Index" method="get">
+        <div class="bg-light text-center">
+            <div class="fw-bold h5">
+                Filters<input class="h6 btn-secondary" type="button" value="\/" id="hideShowButton" onclick="hideShowFilters()" />
+            </div>
+            <div class="container" id="filters" hidden="true">
+                <div class="row">
+                    <div class="col">
+                        <label class="form-label">ID</label><br />
+                        <div class="row h4">
+                            <div class="col">
+                                <input type="number" id="idRange1" name="idRange1" min="0" class="form-control" />
+                            </div>
+                            -
+                            <div class="col">
+                                <input type="number" id="idRange2" name="idRange2" min="0" class="form-control" />
+                            </div>
+                        </div>
+
+                    </div>
+                    @if(!User.IsInRole("Employee"))
+                    {
+                        <div class="col">
+                            <label class="form-label">Employee ID</label><br />
+                            <div class="row h4">
+                                <div class="col">
+                                    <input type="number" id="employeeIdRange1" name="employeeIdRange1" min="0" class="form-control" />
+                                </div>
+                                -
+                                <div class="col">
+                                    <input type="number" id="employeeIdRange2" name="employeeIdRange2" min="0" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label class="form-label">Start Date</label><br />
+                        <div class="row h4">
+                            <div class="col">
+                                <input type="date" id="startDateRange1" name="startDateRange1" min="0" class="form-control" />
+                            </div>
+                            -
+                            <div class="col">
+                                <input type="date" id="startDateRange2" name="startDateRange2" min="0" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <label class="form-label">End Date</label><br />
+                        <div class="row h4">
+                            <div class="col">
+                                <input type="date" id="endDateRange1" name="endDateRange1" min="0" class="form-control" />
+                            </div>
+                            -
+                            <div class="col">
+                                <input type="date" id="endDateRange2" name="endDateRange2" min="0" class="form-control" />
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label class="form-label">Absence Reason</label>
+                        @Html.DropDownList("absenceReason", ViewBag.AbsenceReason, "Select Absence Reason", new { @class = "form-control" })
+                    </div>
+                    <div class="col">
+                        <label class="form-label">Status</label><br />
+                        @Html.DropDownList("status", ViewBag.Status, "Select Status", new { @class = "form-control" })
+                        <br />
+
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="col">
+                        <div class="row">
+                            <div class="col">
+                                <input type="text" id="search" name="search" placeholder="Search by Request ID" class="form-control" />
+                            </div>
+                            <div class="col-sm text-start align-content-center text-end">
+                                <input type="submit" class="btn-primary" value="Search" style="width:7em" />
+                            </div>
+                        </div><br />
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+    </form>
+    <table class="table">
+        <thead>
+            <tr>
+
+                <th>
+                    @Html.DisplayNameFor(model => model.Id)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Employee)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.AbsenceReason)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.StartDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.EndDate)
+                </th>
+
+                <th>
+                    @Html.DisplayNameFor(model => model.Status)
+                </th>
+                <th></th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
             {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Id)
-                    </td>
-                    <td>
-                        @item.EmployeeNavigation.Id
-                    </td>
-                    <td>
-                        @(((List<string>)ViewData["AbsenceReasons"])[@item.AbsenceReason])
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.StartDate)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.EndDate)
-                    </td>
-                    <td>
-                        @(((List<string>)ViewData["Statuses"])[@item.Status])
-                    </td>
-                    <td>
-                        @if (item.Status == 0 && (User.IsInRole("Employee") || User.IsInRole("Administrator")))
-                        {
-                            <a asp-action="Edit" asp-route-id="@item.Id"><button class="btn-primary">Edit</button></a>
-                        }
-                    </td>
-                    <td>
-                        <a asp-action="Details" asp-route-id="@item.Id"><button class="btn-primary">Details</button></a>
-                    </td>
-                    <td>
-                        @if (item.Status == 0 && (User.IsInRole("Employee") || User.IsInRole("Administrator")))
-                        {
-                            <a asp-action="Submit" asp-route-id="@item.Id"><button class="btn-primary">Submit</button></a>
-                        }
-                        @if ((item.Status == 0 || item.Status == 3) && (User.IsInRole("Employee") || User.IsInRole("Administrator")))
-                        {
-                            <a asp-action="Cancel" asp-route-id="@item.Id"><button class="btn-primary">Cancel</button></a>
-                        }
-                    </td>
-                </tr>
+                if (User.HasClaim(p => p.Value == item.Employee.ToString()) || !User.IsInRole("Employee"))
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Id)
+                        </td>
+                        <td>
+                            @item.EmployeeNavigation.Id
+                        </td>
+                        <td>
+                            @(((List<string>)ViewData["AbsenceReasons"])[@item.AbsenceReason])
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.StartDate)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.EndDate)
+                        </td>
+                        <td>
+                            @(((List<string>)ViewData["Statuses"])[@item.Status])
+                        </td>
+                        <td>
+                            @if (item.Status == 0 && (User.IsInRole("Employee") || User.IsInRole("Administrator")))
+                            {
+                                <a asp-action="Edit" asp-route-id="@item.Id"><button class="btn-primary">Edit</button></a>
+                            }
+                        </td>
+                        <td>
+                            <a asp-action="Details" asp-route-id="@item.Id"><button class="btn-primary">Details</button></a>
+                        </td>
+                        <td>
+                            @if (item.Status == 0 && (User.IsInRole("Employee") || User.IsInRole("Administrator")))
+                            {
+                                <a asp-action="Submit" asp-route-id="@item.Id"><button class="btn-primary">Submit</button></a>
+                            }
+                            @if ((item.Status == 0 || item.Status == 3) && (User.IsInRole("Employee") || User.IsInRole("Administrator")))
+                            {
+                                <a asp-action="Cancel" asp-route-id="@item.Id"><button class="btn-primary">Cancel</button></a>
+                            }
+                        </td>
+                    </tr>
+                }
             }
-        }
-    </tbody>
-</table>
-@if (User.IsInRole("Employee") || User.IsInRole("Administrator"))
-{
-    <a asp-controller="LeaveRequests" asp-action="AddLeaveRequest"><button class="btn-primary">Add new Leave Request</button></a>
-}
-<form asp-action="Index" method="get" id="form1">
-    <input type="hidden" id="Order" name="Order" />
-</form>
+        </tbody>
+    </table>
+    @if (User.IsInRole("Employee") || User.IsInRole("Administrator"))
+    {
+        <a asp-controller="LeaveRequests" asp-action="AddLeaveRequest"><button class="btn-primary">Add new Leave Request</button></a>
+    }
+</body>
 
 
