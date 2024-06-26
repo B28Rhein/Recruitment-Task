@@ -160,7 +160,7 @@ namespace Recrutiment_Test.Controllers
             List<Employee> itemsToRemove = new List<Employee>();
             foreach (var item in data)
             {
-                if (accounts.FirstOrDefault(p => p.EmployeeId == item.Id) == null)
+                if (accounts.FirstOrDefault(p => p.EmployeeId == item.Id) == null && item.FullName != "SELF")
                 {
                     employeeModel.EmployeeList.Add(new SelectListItem
                     {
@@ -198,7 +198,7 @@ namespace Recrutiment_Test.Controllers
             List<Employee> itemsToRemove = new List<Employee>();
             foreach (var item in data)
             {
-                if (accounts.FirstOrDefault(p => p.EmployeeId == item.Id) == null)
+                if (accounts.FirstOrDefault(p => p.EmployeeId == item.Id) == null && item.FullName != "SELF")
                 {
                     employeeModel.EmployeeList.Add(new SelectListItem
                     {

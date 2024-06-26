@@ -63,7 +63,7 @@ namespace Recrutiment_Test.Controllers
             var data = context.Employees.ToList();
             foreach (var item in data)
             {
-                if (item.Position == 0)
+                if (item.Position == 0 && item.FullName != "SELF")
                 {
                     employeeModel.EmployeeList.Add(new SelectListItem
                     {

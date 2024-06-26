@@ -69,7 +69,7 @@
                     @if (User.IsInRole("Administrator"))
                     {
                         <td>
-                            <a asp-action="ChangePassword" asp-route-id="@item.Id"><button class="btn-primary">ChangePassword</button></a>
+                            <a asp-action="ChangePassword" asp-route-id="@item.Id"><button class="btn-primary">Change Password</button></a>
                         </td>
                         <td>
                             @if (item.Active == true)

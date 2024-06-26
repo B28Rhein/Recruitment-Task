@@ -156,6 +156,7 @@ namespace Recrutiment_Test.Controllers
                         for (int i = 0; i < leaveRequest.ApprovalRequests.Count; i++) 
                         {
                             leaveRequest.ApprovalRequests.ToList()[i].Comment = Comment;
+                            leaveRequest.ApprovalRequests.ToList()[i].Status = 2;
                             context.Update(leaveRequest.ApprovalRequests.ToList()[i]);
                         }
                         leaveRequest.Comment = Comment;
